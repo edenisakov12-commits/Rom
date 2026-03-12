@@ -16,7 +16,7 @@
         .nav-item { color: #94a3b8; transition: all 0.3s; }
         .nav-item.active { color: #7dd3fc; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .accordion-open .accordion-content { max-height: 500px; }
+        .accordion-open .accordion-content { max-height: 1000px; }
         .accordion-open .chevron-icon { transform: rotate(180deg); }
     </style>
 </head>
@@ -32,73 +32,73 @@
         <section id="sec-home" class="space-y-6">
             <div class="glass-card shadow-xl p-8 text-center border-white relative">
                 <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-2 italic">מה אוכלים היום?</h3>
-                <div id="today-food-text" class="text-4xl font-bold text-gray-800 mb-1">טועמים...</div>
-                <div id="today-day-text" class="text-gray-400 text-sm mb-6">יום 1 למסע</div>
-                <button onclick="markDayDone()" id="main-check-icon" class="bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all">✅</button>
+                <div id="today-food-text" class="text-4xl font-bold text-gray-800 mb-1 italic">בחר יום...</div>
+                <div id="today-day-text" class="text-gray-400 text-sm mb-6 italic italic">לחץ על אחד הימים למטה</div>
+                <button onclick="markDayDone()" id="main-check-icon" class="bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all active:scale-90">✅</button>
             </div>
 
             <div class="space-y-4">
                 <div class="flex justify-between items-center px-2">
-                    <h2 class="text-lg font-bold text-gray-800">המסע של רום - שבוע <span id="current-week-num">1</span></h2>
-                    <button onclick="editCurrentFood()" class="text-sky-500 text-xs font-bold"><i class="fas fa-edit"></i> עריכה</button>
+                    <h2 class="text-lg font-bold text-gray-800 italic">שבוע <span id="current-week-num">1</span></h2>
+                    <div id="next-week-btn-container"></div>
                 </div>
-                <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-4"></div>
+                <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-4 italic"></div>
             </div>
         </section>
 
         <section id="sec-repo" class="hidden space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800 mr-2 font-serif text-right">מאגר שבועות</h2>
-            <div id="repo-list" class="space-y-4">
-                </div>
+            <div class="flex justify-between items-center mr-2 italic">
+                <h2 class="text-2xl font-bold text-gray-800 font-serif">מאגר שבועות</h2>
+                <button onclick="addNewWeek()" class="bg-sky-400 text-white px-4 py-2 rounded-full text-xs font-bold shadow-md">+ שבוע חדש</button>
+            </div>
+            <div id="repo-list" class="space-y-4"></div>
         </section>
 
         <section id="sec-med" class="hidden space-y-6">
             <h2 class="text-2xl font-bold text-gray-800 mr-2 text-right">פנקס רפואי 🩺</h2>
             <div id="med-list" class="space-y-4"></div>
-            <div class="glass-card p-6 shadow-lg space-y-3 border-sky-50 text-right">
-                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right">
+            <div class="glass-card p-6 shadow-lg space-y-3 border-sky-50 text-right italic italic">
+                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right italic">
                 <div class="flex gap-2">
-                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm">
-                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm">
+                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm italic">
+                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm italic">
                 </div>
-                <button onclick="addMed()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm">שמור אירוע</button>
+                <button onclick="addMed()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm italic">שמור אירוע</button>
             </div>
         </section>
-
     </main>
 
     <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
-        <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-4">
+        <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-4 italic">
             <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col items-center">
                 <i class="fas fa-archive text-xl"></i>
-                <span class="text-[10px] mt-1 font-bold uppercase">מאגר</span>
+                <span class="text-[10px] mt-1 font-bold">מאגר</span>
             </button>
-            <button onclick="nav('home')" id="nav-home" class="active -mt-10">
+            <button onclick="nav('home')" id="nav-home" class="active -mt-10 transition-all">
                 <div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white">
                     <i class="fas fa-heart text-xl"></i>
                 </div>
             </button>
             <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col items-center">
                 <i class="fas fa-notes-medical text-xl"></i>
-                <span class="text-[10px] mt-1 font-bold uppercase">רפואי</span>
+                <span class="text-[10px] mt-1 font-bold">רפואי</span>
             </button>
         </div>
     </nav>
 
     <script>
-        // דאטה
-        let tastings = JSON.parse(localStorage.getItem('rom_tastings')) || [
-            { id: 1, week: 1, day: 1, food: "קישוא 🥒", status: 'pending', date: '2024-03-01' },
-            { id: 2, week: 1, day: 2, food: "קישוא 🥒", status: 'pending', date: '2024-03-02' },
-            { id: 3, week: 1, day: 3, food: "קישוא 🥒", status: 'pending', date: '2024-03-03' },
-            { id: 4, week: 1, day: 4, food: "גזר 🥕", status: 'pending', date: '2024-03-04' },
-            { id: 5, week: 1, day: 5, food: "גזר 🥕", status: 'pending', date: '2024-03-05' },
-            { id: 6, week: 1, day: 6, food: "גזר 🥕", status: 'pending', date: '2024-03-06' },
-            { id: 7, week: 1, day: 7, food: "שילוב 🥗", status: 'pending', date: '2024-03-07' },
-            { id: 8, week: 2, day: 8, food: "בטטה 🍠", status: 'pending', date: '2024-03-08' }
+        let tastings = JSON.parse(localStorage.getItem('rom_v3_tastings')) || [
+            { id: 1, week: 1, day: 1, food: "קישוא 🥒", status: 'pending', date: 'לא הוגדר' },
+            { id: 2, week: 1, day: 2, food: "קישוא 🥒", status: 'pending', date: 'לא הוגדר' },
+            { id: 3, week: 1, day: 3, food: "קישוא 🥒", status: 'pending', date: 'לא הוגדר' },
+            { id: 4, week: 1, day: 4, food: "גזר 🥕", status: 'pending', date: 'לא הוגדר' },
+            { id: 5, week: 1, day: 5, food: "גזר 🥕", status: 'pending', date: 'לא הוגדר' },
+            { id: 6, week: 1, day: 6, food: "גזר 🥕", status: 'pending', date: 'לא הוגדר' },
+            { id: 7, week: 1, day: 7, food: "שילוב 🥗", status: 'pending', date: 'לא הוגדר' }
         ];
 
-        let medical = JSON.parse(localStorage.getItem('rom_medical')) || [];
+        let medical = JSON.parse(localStorage.getItem('rom_v3_medical')) || [];
+        let activeWeek = 1;
         let activeIdx = 0;
 
         function nav(s) {
@@ -107,21 +107,23 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active');
             if(s === 'repo') renderRepo();
+            if(s === 'home') renderHome();
         }
 
         function renderHome() {
             const carousel = document.getElementById('week-carousel');
             carousel.innerHTML = '';
-            const currentWeek = tastings[activeIdx].week;
-            document.getElementById('current-week-num').innerText = currentWeek;
-            const weekDays = tastings.filter(t => t.week === currentWeek);
+            document.getElementById('current-week-num').innerText = activeWeek;
             
+            const weekDays = tastings.filter(t => t.week === activeWeek);
+            const allDone = weekDays.length > 0 && weekDays.every(t => t.status === 'done');
+
             weekDays.forEach(item => {
                 const isDone = item.status === 'done';
                 const isSelected = tastings[activeIdx].id === item.id;
                 carousel.innerHTML += `
                     <div onclick="selectDay(${tastings.indexOf(item)})" class="flex-shrink-0 w-28 h-36 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50' : 'border-white'} ${isDone ? 'opacity-60' : ''}">
-                        <span class="text-[10px] text-gray-400 font-bold">יום ${item.day}</span>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase italic">יום ${item.day}</span>
                         <div class="text-3xl my-2">${item.food.split(' ')[1] || '🥣'}</div>
                         <span class="text-[11px] font-bold text-gray-700">${item.food.split(' ')[0]}</span>
                         ${isDone ? '<i class="fas fa-check-circle text-green-500 mt-1"></i>' : ''}
@@ -130,16 +132,27 @@
             });
 
             const current = tastings[activeIdx];
-            document.getElementById('today-food-text').innerText = current.food;
-            document.getElementById('today-day-text').innerText = `יום ${current.day} למסע`;
+            document.getElementById('today-food-text').innerText = current ? current.food : "בחר יום";
+            document.getElementById('today-day-text').innerText = current ? `יום ${current.day} למסע` : "";
+            
             const btn = document.getElementById('main-check-icon');
-            btn.className = current.status === 'done' ? "bg-green-500 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all scale-95 opacity-80" : "bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all";
+            btn.className = (current && current.status === 'done') ? "bg-green-500 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white opacity-80" : "bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white";
+
+            const nextBtnContainer = document.getElementById('next-week-btn-container');
+            if(allDone && tastings.some(t => t.week === activeWeek + 1)) {
+                nextBtnContainer.innerHTML = `<button onclick="goToNextWeek()" class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold animate-pulse">לשבוע הבא ➔</button>`;
+            } else {
+                nextBtnContainer.innerHTML = '';
+            }
         }
 
         function selectDay(idx) { activeIdx = idx; renderHome(); }
+        function goToNextWeek() { activeWeek++; activeIdx = tastings.findIndex(t => t.week === activeWeek); renderHome(); }
+
         function markDayDone() { 
+            if(!tastings[activeIdx]) return;
             tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
-            localStorage.setItem('rom_tastings', JSON.stringify(tastings));
+            localStorage.setItem('rom_v3_tastings', JSON.stringify(tastings));
             renderHome();
         }
 
@@ -151,8 +164,7 @@
             weeks.forEach(w => {
                 const weekItems = tastings.filter(t => t.week === w);
                 const allDone = weekItems.every(t => t.status === 'done');
-                const startDate = weekItems[0].date;
-                const endDate = weekItems[weekItems.length - 1].date;
+                const weekDate = weekItems[0].date || 'לחץ לעריכת תאריך';
 
                 const weekDiv = document.createElement('div');
                 weekDiv.className = "glass-card overflow-hidden transition-all shadow-sm border-r-8 " + (allDone ? 'border-green-400' : 'border-sky-200');
@@ -160,14 +172,14 @@
                     <div onclick="this.parentElement.classList.toggle('accordion-open')" class="p-6 flex justify-between items-center cursor-pointer">
                         <div>
                             <div class="text-lg font-bold">שבוע ${w} ${allDone ? '✅' : ''}</div>
-                            <div class="text-[11px] text-gray-400 font-mono">${startDate} ➔ ${endDate}</div>
+                            <div class="text-[11px] text-sky-400 font-bold" onclick="event.stopPropagation(); editWeekDate(${w})">${weekDate} <i class="fas fa-pen ml-1"></i></div>
                         </div>
                         <i class="fas fa-chevron-down text-gray-300 chevron-icon transition-transform"></i>
                     </div>
                     <div class="accordion-content bg-gray-50/50">
                         <div class="p-4 space-y-2">
                             ${weekItems.map(item => `
-                                <div class="flex justify-between items-center text-sm p-2 border-b border-white">
+                                <div class="flex justify-between items-center text-sm p-2 border-b border-white italic">
                                     <span class="text-gray-400 text-xs">יום ${item.day}</span>
                                     <span class="font-bold text-gray-700">${item.food}</span>
                                     <i class="fas ${item.status === 'done' ? 'fa-check text-green-500' : 'fa-circle text-gray-100'}"></i>
@@ -180,11 +192,43 @@
             });
         }
 
+        function editWeekDate(w) {
+            const newDate = prompt("הזינו תאריכים לשבוע זה (למשל 12.03 - 18.03):");
+            if(newDate) {
+                tastings.forEach(t => { if(t.week === w) t.date = newDate; });
+                localStorage.setItem('rom_v3_tastings', JSON.stringify(tastings));
+                renderRepo();
+            }
+        }
+
+        function addNewWeek() {
+            const nextW = Math.max(...tastings.map(t => t.week)) + 1;
+            const dates = prompt(`תאריכים לשבוע ${nextW}:`);
+            const foods = prompt("אילו ירקות? (הפרידו בפסיקים עבור 7 ימים, או רשמו אחד לכולם):", "בטטה, בטטה, בטטה, תפו\"א, תפו\"א, תפו\"א, שילוב");
+            
+            if(dates && foods) {
+                const foodArr = foods.split(',').map(s => s.trim());
+                for(let i=0; i<7; i++) {
+                    const lastDay = Math.max(...tastings.map(t => t.day));
+                    tastings.push({
+                        id: Date.now() + i,
+                        week: nextW,
+                        day: lastDay + 1,
+                        food: foodArr[i] || foodArr[0],
+                        status: 'pending',
+                        date: dates
+                    });
+                }
+                localStorage.setItem('rom_v3_tastings', JSON.stringify(tastings));
+                renderRepo();
+            }
+        }
+
         function renderMed() {
             const list = document.getElementById('med-list');
             list.innerHTML = medical.map((m, i) => `
-                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center text-right">
-                    <div><div class="font-bold text-gray-800">${m.name}</div><div class="text-[11px] text-gray-500 mt-1">${m.date} | ${m.time}</div></div>
+                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center text-right italic">
+                    <div><div class="font-bold text-gray-800 italic">${m.name}</div><div class="text-[11px] text-gray-500 mt-1">${m.date} | ${m.time}</div></div>
                     <button onclick="delMed(${i})" class="text-gray-300"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
@@ -196,16 +240,16 @@
             const time = document.getElementById('med-time').value;
             if(!name || !date) return;
             medical.push({ name, date, time });
-            localStorage.setItem('rom_medical', JSON.stringify(medical));
+            localStorage.setItem('rom_v3_medical', JSON.stringify(medical));
             renderMed();
             document.getElementById('med-name').value = '';
         }
 
-        function delMed(i) { medical.splice(i, 1); localStorage.setItem('rom_medical', JSON.stringify(medical)); renderMed(); }
+        function delMed(i) { medical.splice(i, 1); localStorage.setItem('rom_v3_medical', JSON.stringify(medical)); renderMed(); }
 
         function editCurrentFood() {
             const val = prompt("עדכון ירק:", tastings[activeIdx].food);
-            if(val) { tastings[activeIdx].food = val; localStorage.setItem('rom_tastings', JSON.stringify(tastings)); renderHome(); }
+            if(val) { tastings[activeIdx].food = val; localStorage.setItem('rom_v3_tastings', JSON.stringify(tastings)); renderHome(); }
         }
 
         renderHome(); renderMed();
