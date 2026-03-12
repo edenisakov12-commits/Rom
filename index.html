@@ -15,50 +15,55 @@
         .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 20px; height: 75px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
         .nav-item { color: #94a3b8; transition: all 0.3s; }
         .nav-item.active { color: #7dd3fc; }
+        .check-btn-active { background-color: #10b981 !important; transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body class="pb-32">
 
-    <div class="p-10 text-center">
+    <div class="p-8 text-center">
         <h1 class="text-5xl font-light tracking-widest text-gray-800" style="font-family: serif;">Rom</h1>
         <div class="h-1 w-8 bg-sky-300 mx-auto mt-4 rounded-full"></div>
     </div>
 
     <main class="px-6">
         
-        <section id="sec-home" class="space-y-8">
-            <div class="glass-card shadow-2xl p-10 text-center border-white relative">
-                <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-4 italic">Today's Tasting</h3>
-                <div id="today-food-display" class="text-4xl font-bold text-gray-800 mb-2">טועמים... 🥣</div>
-                <div id="today-date-display" class="text-gray-400 text-sm mb-8 italic">יום 1 במסע</div>
+        <section id="sec-home" class="space-y-6">
+            <div class="glass-card shadow-xl p-8 text-center border-white relative">
+                <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-2 italic">מה אוכלים היום?</h3>
+                <div id="today-food-text" class="text-4xl font-bold text-gray-800 mb-1">טועמים...</div>
+                <div id="today-day-text" class="text-gray-400 text-sm mb-6">יום 1 למסע</div>
                 
-                <button onclick="markCurrentDone()" id="main-check-btn" class="bg-sky-400 text-white w-24 h-24 rounded-full shadow-xl shadow-sky-100 flex items-center justify-center mx-auto text-4xl border-8 border-white transition-all active:scale-90">
+                <button onclick="markDayDone()" id="main-check-icon" class="bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all">
                     ✅
                 </button>
             </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center px-2">
+                    <h2 class="text-lg font-bold text-gray-800">המסע של רום - שבוע <span id="current-week-num">1</span></h2>
+                    <button onclick="editCurrentFood()" class="text-sky-500 text-xs font-bold"><i class="fas fa-edit"></i> עריכה</button>
+                </div>
+                <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-4">
+                    </div>
+            </div>
         </section>
 
-        <section id="sec-repo" class="hidden space-y-8">
-            <h2 class="text-2xl font-bold text-gray-800 mr-2">מאגר הטעימות 🥗</h2>
-            <div id="weeks-container" class="space-y-10">
+        <section id="sec-repo" class="hidden space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 mr-2 font-serif">מאגר שבועות</h2>
+            <div id="repo-list" class="space-y-4">
                 </div>
         </section>
 
         <section id="sec-med" class="hidden space-y-6">
-            <div class="flex justify-between items-end mr-2">
-                <h2 class="text-2xl font-bold text-gray-800">פנקס רפואי 🩺</h2>
-            </div>
-            
-            <div id="med-list" class="space-y-4">
-                </div>
-
+            <h2 class="text-2xl font-bold text-gray-800 mr-2">פנקס רפואי 🩺</h2>
+            <div id="med-list" class="space-y-4"></div>
             <div class="glass-card p-6 shadow-lg space-y-3 border-sky-50">
-                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b border-gray-100 p-2 focus:outline-none text-right">
+                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right">
                 <div class="flex gap-2">
-                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b border-gray-100 p-2 focus:outline-none text-right text-sm">
-                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b border-gray-100 p-2 focus:outline-none text-right text-sm">
+                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm">
+                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm">
                 </div>
-                <button onclick="addMedicalRecord()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm uppercase tracking-widest">הוסף לרשימה</button>
+                <button onclick="addMed()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm">שמור אירוע</button>
             </div>
         </section>
 
@@ -67,136 +72,155 @@
     <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
         <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-4">
             <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col items-center">
-                <i class="fas fa-layer-group text-xl"></i>
+                <i class="fas fa-archive text-xl"></i>
                 <span class="text-[10px] mt-1 font-bold">מאגר</span>
             </button>
-            
             <button onclick="nav('home')" id="nav-home" class="active -mt-10">
-                <div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white text-2xl">
-                    <i class="fas fa-home"></i>
+                <div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white">
+                    <i class="fas fa-heart text-xl"></i>
                 </div>
             </button>
-
             <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col items-center">
-                <i class="fas fa-file-medical text-xl"></i>
+                <i class="fas fa-notes-medical text-xl"></i>
                 <span class="text-[10px] mt-1 font-bold">רפואי</span>
             </button>
         </div>
     </nav>
 
     <script>
-        // דאטה של טעימות
-        let tastings = JSON.parse(localStorage.getItem('romTastings')) || [
-            { id: 1, week: 1, food: "קישוא 🥒", day: 1, status: 'pending' },
-            { id: 2, week: 1, food: "קישוא 🥒", day: 2, status: 'pending' },
-            { id: 3, week: 1, food: "קישוא 🥒", day: 3, status: 'pending' },
-            { id: 4, week: 1, food: "גזר 🥕", day: 4, status: 'pending' },
-            { id: 5, week: 1, food: "גזר 🥕", day: 5, status: 'pending' },
-            { id: 6, week: 1, food: "גזר 🥕", day: 6, status: 'pending' },
-            { id: 7, week: 1, food: "שילוב! 🥗", day: 7, status: 'pending' },
-            { id: 8, week: 2, food: "בטטה 🍠", day: 8, status: 'pending' } // דוגמה לשבוע 2
+        // דאטה בסיסי
+        let tastings = JSON.parse(localStorage.getItem('rom_tastings')) || [
+            { id: 1, week: 1, day: 1, food: "קישוא 🥒", status: 'pending' },
+            { id: 2, week: 1, day: 2, food: "קישוא 🥒", status: 'pending' },
+            { id: 3, week: 1, day: 3, food: "קישוא 🥒", status: 'pending' },
+            { id: 4, week: 1, day: 4, food: "גזר 🥕", status: 'pending' },
+            { id: 5, week: 1, day: 5, food: "גזר 🥕", status: 'pending' },
+            { id: 6, week: 1, day: 6, food: "גזר 🥕", status: 'pending' },
+            { id: 7, week: 1, day: 7, food: "שילוב 🥗", status: 'pending' },
+            { id: 8, week: 2, day: 8, food: "בטטה 🍠", status: 'pending' },
+            { id: 9, week: 2, day: 9, food: "בטטה 🍠", status: 'pending' }
         ];
 
-        let medicalRecords = JSON.parse(localStorage.getItem('romMedical')) || [];
+        let medical = JSON.parse(localStorage.getItem('rom_medical')) || [];
         let activeIdx = 0;
 
-        function nav(section) {
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`sec-${section}`).classList.remove('hidden');
-            
+        function nav(s) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`sec-${s}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(`nav-${section}`).classList.add('active');
-            if(section === 'home') document.getElementById('nav-home').classList.add('active');
-            else document.getElementById('nav-home').classList.remove('active');
+            if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active');
+            
+            if(s === 'repo') renderRepo();
+        }
+
+        function renderHome() {
+            const carousel = document.getElementById('week-carousel');
+            carousel.innerHTML = '';
+            
+            const currentWeek = tastings[activeIdx].week;
+            document.getElementById('current-week-num').innerText = currentWeek;
+            
+            const weekDays = tastings.filter(t => t.week === currentWeek);
+            
+            weekDays.forEach(item => {
+                const isDone = item.status === 'done';
+                const isSelected = tastings[activeIdx].id === item.id;
+                
+                carousel.innerHTML += `
+                    <div onclick="selectDay(${tastings.indexOf(item)})" class="flex-shrink-0 w-28 h-36 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50' : 'border-white'} ${isDone ? 'opacity-60' : ''}">
+                        <span class="text-[10px] text-gray-400 font-bold">יום ${item.day}</span>
+                        <div class="text-3xl my-2">${item.food.split(' ')[1] || '🥣'}</div>
+                        <span class="text-[11px] font-bold text-gray-700">${item.food.split(' ')[0]}</span>
+                        ${isDone ? '<i class="fas fa-check-circle text-green-500 mt-1"></i>' : ''}
+                    </div>
+                `;
+            });
+
+            const current = tastings[activeIdx];
+            document.getElementById('today-food-text').innerText = current.food;
+            document.getElementById('today-day-text').innerText = `יום ${current.day} למסע`;
+            const btn = document.getElementById('main-check-icon');
+            btn.className = current.status === 'done' ? 
+                "bg-green-500 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all scale-95 opacity-80" : 
+                "bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all";
+        }
+
+        function selectDay(idx) {
+            activeIdx = idx;
+            renderHome();
+        }
+
+        function markDayDone() {
+            tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
+            localStorage.setItem('rom_tastings', JSON.stringify(tastings));
+            renderHome();
         }
 
         function renderRepo() {
-            const container = document.getElementById('weeks-container');
+            const container = document.getElementById('repo-list');
             container.innerHTML = '';
             
-            const weeks = [1, 2, 3, 4];
+            const weeks = [...new Set(tastings.map(t => t.week))];
+            
             weeks.forEach(w => {
                 const weekItems = tastings.filter(t => t.week === w);
-                if(weekItems.length === 0) return;
+                const allDone = weekItems.every(t => t.status === 'done');
+                const doneCount = weekItems.filter(t => t.status === 'done').length;
 
-                const weekHtml = `
-                    <div class="space-y-4">
-                        <h3 class="text-sm font-bold text-sky-400 tracking-widest mr-2 uppercase">Week ${w}</h3>
-                        <div class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-2">
-                            ${weekItems.map(item => `
-                                <div onclick="setActiveFromRepo(${item.id})" class="flex-shrink-0 w-28 h-36 glass-card shadow-sm border-2 flex flex-col items-center justify-center transition-all ${item.status === 'done' ? 'bg-sky-50 border-sky-100 opacity-60' : 'border-white'}">
-                                    <span class="text-[10px] text-gray-400 font-bold uppercase">DAY ${item.day}</span>
-                                    <div class="text-3xl my-2">${item.food.split(' ')[1] || '🥣'}</div>
-                                    <span class="text-[11px] font-bold text-gray-700">${item.food.split(' ')[0]}</span>
-                                </div>
-                            `).join('')}
+                container.innerHTML += `
+                    <div class="glass-card p-6 flex justify-between items-center shadow-sm border-r-8 ${allDone ? 'border-green-400' : 'border-sky-200'}">
+                        <div>
+                            <div class="text-lg font-bold">שבוע ${w}</div>
+                            <div class="text-xs text-gray-400">${doneCount} מתוך ${weekItems.length} ימים הושלמו</div>
                         </div>
+                        ${allDone ? '<div class="bg-green-100 text-green-600 p-2 rounded-full text-xs font-bold">הושלם ✅</div>' : '<i class="fas fa-chevron-left text-gray-200"></i>'}
                     </div>
                 `;
-                container.innerHTML += weekHtml;
             });
         }
 
-        function updateHomeCard() {
-            const item = tastings[activeIdx];
-            document.getElementById('today-food-display').innerText = item.food;
-            document.getElementById('today-date-display').innerText = `יום ${item.day} במסע הטעימות`;
-            const btn = document.getElementById('main-check-btn');
-            btn.style.opacity = item.status === 'done' ? '0.5' : '1';
-            btn.style.transform = item.status === 'done' ? 'scale(0.9)' : 'scale(1)';
-        }
-
-        function setActiveFromRepo(id) {
-            activeIdx = tastings.findIndex(t => t.id === id);
-            nav('home');
-            updateHomeCard();
-        }
-
-        function markCurrentDone() {
-            tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
-            localStorage.setItem('romTastings', JSON.stringify(tastings));
-            updateHomeCard();
-            renderRepo();
-        }
-
-        function renderMedical() {
+        function renderMed() {
             const list = document.getElementById('med-list');
-            list.innerHTML = medicalRecords.map((r, i) => `
-                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center">
+            list.innerHTML = medical.map((m, i) => `
+                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center text-right">
                     <div>
-                        <div class="font-bold text-gray-800 text-lg">${r.name}</div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            <i class="far fa-calendar-alt ml-1"></i> ${r.date} 
-                            <i class="far fa-clock mr-3 ml-1"></i> ${r.time}
-                        </div>
+                        <div class="font-bold text-gray-800">${m.name}</div>
+                        <div class="text-[11px] text-gray-500 mt-1">${m.date} | ${m.time}</div>
                     </div>
-                    <button onclick="deleteMed(${i})" class="text-gray-300"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="delMed(${i})" class="text-gray-300"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
         }
 
-        function addMedicalRecord() {
+        function addMed() {
             const name = document.getElementById('med-name').value;
             const date = document.getElementById('med-date').value;
             const time = document.getElementById('med-time').value;
             if(!name || !date) return;
-
-            medicalRecords.push({ name, date, time });
-            localStorage.setItem('romMedical', JSON.stringify(medicalRecords));
+            medical.push({ name, date, time });
+            localStorage.setItem('rom_medical', JSON.stringify(medical));
+            renderMed();
             document.getElementById('med-name').value = '';
-            renderMedical();
         }
 
-        function deleteMed(i) {
-            medicalRecords.splice(i, 1);
-            localStorage.setItem('romMedical', JSON.stringify(medicalRecords));
-            renderMedical();
+        function delMed(i) {
+            medical.splice(i, 1);
+            localStorage.setItem('rom_medical', JSON.stringify(medical));
+            renderMed();
         }
 
-        // Init
-        renderRepo();
-        updateHomeCard();
-        renderMedical();
+        function editCurrentFood() {
+            const val = prompt("עדכון ירק:", tastings[activeIdx].food);
+            if(val) {
+                tastings[activeIdx].food = val;
+                localStorage.setItem('rom_tastings', JSON.stringify(tastings));
+                renderHome();
+            }
+        }
+
+        // הפעלה
+        renderHome();
+        renderMed();
     </script>
 </body>
 </html>
