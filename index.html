@@ -30,17 +30,17 @@
         <section id="sec-home" class="space-y-6">
             <div class="glass-card shadow-xl p-8 text-center border-white relative">
                 <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-2 italic">מה אוכלים היום?</h3>
-                <div id="today-food-text" class="text-4xl font-bold text-gray-800 mb-1 italic italic">בחר יום...</div>
-                <div id="today-day-text" class="text-gray-400 text-sm mb-6 italic italic">לחץ על אחד הימים למטה</div>
+                <div id="today-food-text" class="text-4xl font-bold text-gray-800 mb-1 italic">בחר יום...</div>
+                <div id="today-day-text" class="text-gray-400 text-sm mb-6 italic">לחץ על אחד הימים למטה</div>
                 <button onclick="markDayDone()" id="main-check-icon" class="bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center mx-auto text-3xl border-4 border-white transition-all active:scale-90">✅</button>
             </div>
 
             <div class="space-y-4">
                 <div class="flex justify-between items-center px-2">
-                    <h2 class="text-lg font-bold text-gray-800 italic italic">שבוע <span id="current-week-num">1</span></h2>
+                    <h2 class="text-lg font-bold text-gray-800 italic">שבוע <span id="current-week-num">1</span></h2>
                     <div id="next-week-btn-container"></div>
                 </div>
-                <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-4 italic italic"></div>
+                <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-4 italic"></div>
             </div>
         </section>
 
@@ -55,11 +55,11 @@
         <section id="sec-med" class="hidden space-y-6">
             <h2 class="text-2xl font-bold text-gray-800 mr-2 text-right">פנקס רפואי 🩺</h2>
             <div id="med-list" class="space-y-4"></div>
-            <div class="glass-card p-6 shadow-lg space-y-3 border-sky-50 text-right">
-                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right italic">
+            <div class="glass-card p-6 shadow-lg space-y-3 border-sky-50 text-right italic">
+                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right">
                 <div class="flex gap-2">
-                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm italic">
-                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm italic">
+                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm">
+                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm">
                 </div>
                 <button onclick="addMed()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm">שמור אירוע</button>
             </div>
@@ -71,8 +71,8 @@
             <h3 id="modal-title" class="text-2xl font-bold text-gray-800">ניהול שבוע טעימות</h3>
             <div class="space-y-3">
                 <input id="modal-dates" type="text" placeholder="תאריכי השבוע (למשל 12.03 - 18.03)" class="w-full bg-white/50 border rounded-2xl p-3 text-right text-sm">
-                <input id="modal-emoji" type="text" placeholder="אימוג'י לשבוע (למשל 🥕)" class="w-full bg-white/50 border rounded-2xl p-3 text-right text-sm">
-                <textarea id="modal-foods" placeholder="אילו ירקות? (הפרידו בפסיקים עבור 7 ימים)" class="w-full bg-white/50 border rounded-2xl p-3 text-right text-sm h-24" rows="3"></textarea>
+                <input id="modal-emoji" type="text" placeholder="אימוג'ים לשבוע (למשל 🥕🍠)" class="w-full bg-white/50 border rounded-2xl p-3 text-right text-sm">
+                <textarea id="modal-foods" placeholder="שמות המאכלים (הפרידו בפסיקים עבור 7 ימים)" class="w-full bg-white/50 border rounded-2xl p-3 text-right text-sm h-24" rows="3"></textarea>
             </div>
             <div class="flex gap-2">
                 <button onclick="saveWeek()" class="flex-1 bg-sky-400 text-white p-3 rounded-2xl font-bold text-sm">שמור שינויים</button>
@@ -100,17 +100,17 @@
     </nav>
 
     <script>
-        let tastings = JSON.parse(localStorage.getItem('rom_v5_tastings')) || [
-            { id: 1, week: 1, day: 1, food: "קישוא", emoji: "🥒", status: 'pending', date: '12.03 - 18.03' },
-            { id: 2, week: 1, day: 2, food: "קישוא", emoji: "🥒", status: 'pending', date: '12.03 - 18.03' },
-            { id: 3, week: 1, day: 3, food: "קישוא", emoji: "🥒", status: 'pending', date: '12.03 - 18.03' },
-            { id: 4, week: 1, day: 4, food: "גזר", emoji: "🥕", status: 'pending', date: '12.03 - 18.03' },
-            { id: 5, week: 1, day: 5, food: "גזר", emoji: "🥕", status: 'pending', date: '12.03 - 18.03' },
-            { id: 6, week: 1, day: 6, food: "גזר", emoji: "🥕", status: 'pending', date: '12.03 - 18.03' },
-            { id: 7, week: 1, day: 7, food: "שילוב", emoji: "🥗", status: 'pending', date: '12.03 - 18.03' }
+        let tastings = JSON.parse(localStorage.getItem('rom_v6_tastings')) || [
+            { id: 1, week: 1, day: 1, food: "קישוא", emoji: "🥒", status: 'pending', date: 'לא הוגדר' },
+            { id: 2, week: 1, day: 2, food: "קישוא", emoji: "🥒", status: 'pending', date: 'לא הוגדר' },
+            { id: 3, week: 1, day: 3, food: "קישוא", emoji: "🥒", status: 'pending', date: 'לא הוגדר' },
+            { id: 4, week: 1, day: 4, food: "גזר", emoji: "🥕", status: 'pending', date: 'לא הוגדר' },
+            { id: 5, week: 1, day: 5, food: "גזר", emoji: "🥕", status: 'pending', date: 'לא הוגדר' },
+            { id: 6, week: 1, day: 6, food: "גזר", emoji: "🥕", status: 'pending', date: 'לא הוגדר' },
+            { id: 7, week: 1, day: 7, food: "שילוב חגיגי", emoji: "🥗", status: 'pending', date: 'לא הוגדר' }
         ];
 
-        let medical = JSON.parse(localStorage.getItem('rom_v5_medical')) || [];
+        let medical = JSON.parse(localStorage.getItem('rom_v6_medical')) || [];
         let activeWeek = 1;
         let activeIdx = 0;
         let editingWeek = null;
@@ -132,13 +132,16 @@
             const weekDays = tastings.filter(t => t.week === activeWeek);
             const allDone = weekDays.length > 0 && weekDays.every(t => t.status === 'done');
 
-            weekDays.forEach(item => {
+            weekDays.forEach((item, index) => {
                 const isDone = item.status === 'done';
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
+                // ביום השביעי של השבוע (אינדקס 6), נציג אימוג'י של סלט/שילוב
+                const displayEmoji = (index === 6) ? "🥗" : (item.emoji || "🥣");
+
                 carousel.innerHTML += `
                     <div onclick="selectDay(${tastings.indexOf(item)})" class="flex-shrink-0 w-28 h-36 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105' : 'border-white'} ${isDone ? 'opacity-60 bg-green-50' : ''}">
-                        <span class="text-[10px] text-gray-400 font-bold uppercase italic italic">יום ${item.day}</span>
-                        <div class="text-3xl my-2">${item.emoji || '🥣'}</div>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase italic">יום ${item.day}</span>
+                        <div class="text-2xl my-2">${displayEmoji}</div>
                         <span class="text-[11px] font-bold text-gray-700">${item.food}</span>
                         ${isDone ? '<i class="fas fa-check-circle text-green-500 mt-1"></i>' : ''}
                     </div>
@@ -147,7 +150,12 @@
 
             const current = tastings[activeIdx];
             if (current) {
-                document.getElementById('today-food-text').innerText = current.food + " " + (current.emoji || "");
+                // בדיקה אם זה היום השביעי בתוך השבוע שלו
+                const weekItems = tastings.filter(t => t.week === current.week);
+                const isSeventhDay = weekItems.indexOf(current) === 6;
+                const displayEmoji = isSeventhDay ? "🥗" : (current.emoji || "");
+                
+                document.getElementById('today-food-text').innerText = current.food + " " + displayEmoji;
                 document.getElementById('today-day-text').innerText = `יום ${current.day} למסע`;
             }
 
@@ -167,7 +175,7 @@
         function markDayDone() { 
             if(!tastings[activeIdx]) return;
             tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
-            localStorage.setItem('rom_v5_tastings', JSON.stringify(tastings));
+            localStorage.setItem('rom_v6_tastings', JSON.stringify(tastings));
             
             if (tastings[activeIdx].status === 'done') {
                 const weekItems = tastings.filter(t => t.week === activeWeek);
@@ -189,7 +197,7 @@
             document.getElementById('modal-title').innerText = "התחלת שבוע חדש ✨";
             document.getElementById('modal-dates').value = "";
             document.getElementById('modal-emoji').value = "";
-            document.getElementById('modal-foods').value = "בטטה, בטטה, בטטה, תפו\"א, תפו\"א, תפו\"א, שילוב";
+            document.getElementById('modal-foods').value = "גזר, גזר, גזר, בטטה, בטטה, בטטה, שילוב";
             toggleModal(true);
         }
 
@@ -212,7 +220,6 @@
             const foodArr = foods.split(',').map(s => s.trim());
 
             if (editingWeek) {
-                // עדכון שבוע קיים
                 let dayCounter = 0;
                 tastings.forEach(t => {
                     if (t.week === editingWeek) {
@@ -223,7 +230,6 @@
                     }
                 });
             } else {
-                // יצירת שבוע חדש
                 const nextW = Math.max(...tastings.map(t => t.week)) + 1;
                 const lastDay = Math.max(...tastings.map(t => t.day));
                 for(let i=0; i<7; i++) {
@@ -241,7 +247,7 @@
                 activeIdx = tastings.findIndex(t => t.week === activeWeek);
             }
 
-            localStorage.setItem('rom_v5_tastings', JSON.stringify(tastings));
+            localStorage.setItem('rom_v6_tastings', JSON.stringify(tastings));
             toggleModal(false);
             renderHome();
             renderRepo();
@@ -274,8 +280,8 @@
         function renderMed() {
             const list = document.getElementById('med-list');
             list.innerHTML = medical.map((m, i) => `
-                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center text-right italic italic">
-                    <div><div class="font-bold text-gray-800 italic">${m.name}</div><div class="text-[11px] text-gray-500 mt-1">${m.date} | ${m.time}</div></div>
+                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center text-right italic">
+                    <div><div class="font-bold text-gray-800">${m.name}</div><div class="text-[11px] text-gray-500 mt-1">${m.date} | ${m.time}</div></div>
                     <button onclick="delMed(${i})" class="text-gray-300"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
@@ -287,12 +293,12 @@
             const time = document.getElementById('med-time').value;
             if(!name || !date) return;
             medical.push({ name, date, time });
-            localStorage.setItem('rom_v5_medical', JSON.stringify(medical));
+            localStorage.setItem('rom_v6_medical', JSON.stringify(medical));
             renderMed();
             document.getElementById('med-name').value = '';
         }
 
-        function delMed(i) { medical.splice(i, 1); localStorage.setItem('rom_v5_medical', JSON.stringify(medical)); renderMed(); }
+        function delMed(i) { medical.splice(i, 1); localStorage.setItem('rom_v6_medical', JSON.stringify(medical)); renderMed(); }
 
         renderHome(); renderMed();
     </script>
