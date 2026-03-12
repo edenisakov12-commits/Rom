@@ -3,137 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>האפליקציה של רום 👶</title>
+    <title>Rom's Menu 👶</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; }
-        .tab-active { color: #db2777; border-top: 3px solid #db2777; }
-        .done-item { opacity: 0.6; text-decoration: line-through; border-color: #10b981 !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 30px; }
+        .nav-button { transition: all 0.3s ease; }
+        .active-day { border: 3px solid #7dd3fc; background-color: #f0f9ff; }
+        .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 20px; height: 70px; }
     </style>
 </head>
-<body class="bg-pink-50 min-h-screen">
+<body class="pb-32">
 
-    <header class="bg-white p-6 rounded-b-[40px] shadow-md text-center">
-        <h1 class="text-3xl font-bold text-pink-600">רום הקטן שלנו 👶</h1>
-        <p class="text-gray-500 font-medium mt-1">מעקב טעימות ורפואה</p>
-    </header>
+    <div class="p-8 text-center">
+        <h1 class="text-4xl font-light tracking-tight text-gray-800" style="font-family: serif;">Rom & Co.</h1>
+        <div class="h-1 w-12 bg-sky-300 mx-auto mt-2 rounded-full"></div>
+    </div>
 
-    <main class="p-4 pb-24" id="main-content">
-        <section id="tasting-section">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 mr-2">טבלת טעימות - חודש 1</h2>
-            <div id="tasting-list" class="space-y-3">
-                </div>
-        </section>
-
-        <section id="medical-section" class="hidden">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 mr-2">מעקב רפואי וחיסונים 💉</h2>
-            <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
-                <input id="med-input" type="text" placeholder="שם החיסון / בדיקה..." class="w-full p-3 border rounded-xl mb-2 text-right">
-                <button onclick="addMedical()" class="w-full bg-pink-500 text-white p-3 rounded-xl font-bold">הוסף לרשימה +</button>
+    <main class="px-6 space-y-8">
+        
+        <section id="today-card">
+            <div class="glass-card shadow-xl p-8 text-center border border-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 text-sky-200 opacity-20"><i class="fas fa-utensils text-6xl"></i></div>
+                <h3 class="text-sky-500 font-bold text-sm uppercase tracking-widest mb-2">מה אוכלים היום?</h3>
+                <div id="today-food" class="text-4xl font-bold text-gray-800 mb-4">טועמים... 🥣</div>
+                <div id="today-details" class="text-gray-500 mb-6 font-medium">אנא סמנו את היום הנוכחי ברשימה</div>
+                <button onclick="markDone()" id="done-btn" class="bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg shadow-sky-200 flex items-center justify-center mx-auto text-xl font-bold border-4 border-white">
+                    דוני
+                </button>
             </div>
-            <div id="medical-list" class="space-y-3">
+        </section>
+
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">המסע של רום</h2>
+                <button onclick="toggleEditMode()" class="text-sky-500 text-sm font-bold">עריכת תפריט <i class="fas fa-edit"></i></button>
+            </div>
+            <div id="horizontal-scroll" class="flex space-x-4 space-x-reverse overflow-x-auto pb-4 no-scrollbar">
                 </div>
         </section>
+
+        <section id="medical-section" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-gray-800">מעקב רפואי 🩺</h2>
+            <div id="med-list" class="space-y-3 text-right">
+                </div>
+            <div class="glass-card p-4 border shadow-sm">
+                <input id="med-input" type="text" placeholder="הוספת חיסון או בדיקה..." class="w-full bg-transparent border-b border-sky-200 p-2 focus:outline-none text-right">
+                <button onclick="addMed()" class="w-full mt-3 text-sky-500 font-bold text-sm uppercase tracking-wider">שמור אירוע +</button>
+            </div>
+        </section>
+
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 shadow-lg">
-        <button onclick="showTab('tasting')" id="btn-tasting" class="flex flex-col items-center tab-active transition-all">
-            <i class="fas fa-utensils text-xl"></i>
-            <span class="text-xs mt-1 font-bold">טעימות</span>
-        </button>
-        <button onclick="showTab('medical')" id="btn-medical" class="flex flex-col items-center text-gray-400 transition-all">
-            <i class="fas fa-stethoscopes text-xl"></i>
-            <span class="text-xs mt-1 font-bold">רפואי</span>
-        </button>
+    <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
+        <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-6 shadow-2xl">
+            <button onclick="showSection('tasting')" class="nav-button text-white flex flex-col items-center opacity-100" id="nav-tasting">
+                <i class="fas fa-baby"></i>
+                <span class="text-[10px] mt-1">טעימות</span>
+            </button>
+            <div class="w-14 h-14 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] -mt-10 shadow-lg text-white">
+                <i class="fas fa-heart text-xl"></i>
+            </div>
+            <button onclick="showSection('medical')" class="nav-button text-gray-500 flex flex-col items-center" id="nav-medical">
+                <i class="fas fa-notes-medical"></i>
+                <span class="text-[10px] mt-1">רפואי</span>
+            </button>
+        </div>
     </nav>
 
     <script>
-        // נתונים ראשוניים של הטעימות
-        const initialTastings = [
-            { id: 1, food: "קישוא 🥒", days: "ימים 1-3", week: 1 },
-            { id: 2, food: "גזר 🥕", days: "ימים 4-6", week: 1 },
-            { id: 3, food: "קישוא + גזר 🥗", days: "יום 7", week: 1 },
-            { id: 4, food: "בטטה 🍠", days: "ימים 8-10", week: 2 },
-            { id: 5, food: "תפוח אדמה 🥔", days: "ימים 11-13", week: 2 },
-            { id: 6, food: "מרק כתום 🥣", days: "יום 14", week: 2 },
-            { id: 7, food: "תפוח עץ 🍎", days: "ימים 15-17", week: 3 },
-            { id: 8, food: "אגס 🍐", days: "ימים 18-20", week: 3 },
-            { id: 9, food: "בננה 🍌", days: "יום 21", week: 3 },
-            { id: 10, food: "דלעת 🎃", days: "ימים 22-24", week: 4 },
-            { id: 11, food: "עוף/הודו 🍗", days: "ימים 25-27", week: 4 },
-            { id: 12, food: "ארוחה שלמה 🍽️", days: "ימים 28-30", week: 4 }
+        // תפריט התחלתי - ניתן לעריכה
+        let menu = JSON.parse(localStorage.getItem('romMenu')) || [
+            { day: 1, food: "קישוא 🥒", status: 'pending' },
+            { day: 2, food: "קישוא 🥒", status: 'pending' },
+            { day: 3, food: "קישוא 🥒", status: 'pending' },
+            { day: 4, food: "גזר 🥕", status: 'pending' },
+            { day: 5, food: "גזר 🥕", status: 'pending' },
+            { day: 6, food: "גזר 🥕", status: 'pending' },
+            { day: 7, food: "שילוב! 🥗", status: 'pending' }
         ];
 
-        let doneTastings = JSON.parse(localStorage.getItem('doneTastings')) || [];
-        let medicalRecords = JSON.parse(localStorage.getItem('medicalRecords')) || [];
+        let medical = JSON.parse(localStorage.getItem('romMed')) || ["חיסון גיל חודשיים"];
 
-        function renderTastings() {
-            const list = document.getElementById('tasting-list');
-            list.innerHTML = '';
-            initialTastings.forEach(item => {
-                const isDone = doneTastings.includes(item.id);
-                list.innerHTML += `
-                    <div onclick="toggleTasting(${item.id})" class="bg-white p-4 rounded-2xl shadow-sm border-2 flex justify-between items-center transition-all ${isDone ? 'done-item' : 'border-transparent'}">
-                        <div>
-                            <div class="font-bold text-gray-800 text-lg">${item.food}</div>
-                            <div class="text-sm text-gray-500 italic uppercase">שבוע ${item.week} | ${item.days}</div>
-                        </div>
-                        <i class="fas ${isDone ? 'fa-check-circle text-green-500' : 'fa-circle text-gray-200'} text-2xl"></i>
+        function render() {
+            const container = document.getElementById('horizontal-scroll');
+            container.innerHTML = '';
+            
+            menu.forEach((item, index) => {
+                const isDone = item.status === 'done';
+                container.innerHTML += `
+                    <div onclick="setToday(${index})" class="flex-shrink-0 w-24 h-32 glass-card border-2 flex flex-col items-center justify-center transition-all ${isDone ? 'bg-green-50 border-green-200' : 'border-white'}">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase">יום ${item.day}</span>
+                        <div class="text-2xl my-2">${item.food.split(' ')[1] || '🥣'}</div>
+                        <span class="text-[11px] font-bold text-gray-700">${item.food.split(' ')[0]}</span>
+                        ${isDone ? '<i class="fas fa-check-circle text-green-500 mt-2"></i>' : ''}
                     </div>
                 `;
             });
+            updateTodayCard();
+            renderMedical();
         }
 
-        function toggleTasting(id) {
-            if (doneTastings.includes(id)) {
-                doneTastings = doneTastings.filter(i => i !== id);
+        let currentDayIdx = 0;
+
+        function setToday(idx) {
+            currentDayIdx = idx;
+            updateTodayCard();
+        }
+
+        function updateTodayCard() {
+            const item = menu[currentDayIdx];
+            document.getElementById('today-food').innerText = item.food;
+            document.getElementById('today-details').innerText = `יום ${item.day} למסע הטעימות`;
+            const btn = document.getElementById('done-btn');
+            if(item.status === 'done') {
+                btn.classList.replace('bg-sky-400', 'bg-green-500');
+                btn.innerText = '✓';
             } else {
-                doneTastings.push(id);
+                btn.classList.replace('bg-green-500', 'bg-sky-400');
+                btn.innerText = 'דוני';
             }
-            localStorage.setItem('doneTastings', JSON.stringify(doneTastings));
-            renderTastings();
+        }
+
+        function markDone() {
+            menu[currentDayIdx].status = menu[currentDayIdx].status === 'done' ? 'pending' : 'done';
+            localStorage.setItem('romMenu', JSON.stringify(menu));
+            render();
+        }
+
+        function showSection(name) {
+            document.getElementById('tasting-section').style.display = name === 'tasting' ? 'block' : 'none';
+            document.getElementById('medical-section').style.display = name === 'medical' ? 'block' : 'none';
+            document.getElementById('nav-tasting').classList.toggle('text-white', name === 'tasting');
+            document.getElementById('nav-medical').classList.toggle('text-white', name === 'medical');
+        }
+
+        function toggleEditMode() {
+            const newFood = prompt("מה תרצו שרום יאכל ביום הזה?", menu[currentDayIdx].food);
+            if(newFood) {
+                menu[currentDayIdx].food = newFood;
+                localStorage.setItem('romMenu', JSON.stringify(menu));
+                render();
+            }
         }
 
         function renderMedical() {
-            const list = document.getElementById('medical-list');
-            list.innerHTML = '';
-            medicalRecords.forEach((record, index) => {
-                list.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-r-4 border-blue-400">
-                        <span class="font-medium text-gray-700">${record}</span>
-                        <button onclick="deleteMedical(${index})" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-            });
+            const list = document.getElementById('med-list');
+            list.innerHTML = medical.map((m, i) => `
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border-r-4 border-sky-300">
+                    <span class="text-gray-700 font-medium">${m}</span>
+                    <i class="fas fa-times text-gray-300" onclick="deleteMed(${i})"></i>
+                </div>
+            `).join('');
         }
 
-        function addMedical() {
-            const input = document.getElementById('med-input');
-            if (input.value.trim() === '') return;
-            medicalRecords.push(input.value);
-            localStorage.setItem('medicalRecords', JSON.stringify(medicalRecords));
-            input.value = '';
+        function addMed() {
+            const val = document.getElementById('med-input').value;
+            if(!val) return;
+            medical.push(val);
+            localStorage.setItem('romMed', JSON.stringify(medical));
+            document.getElementById('med-input').value = '';
             renderMedical();
         }
 
-        function deleteMedical(index) {
-            medicalRecords.splice(index, 1);
-            localStorage.setItem('medicalRecords', JSON.stringify(medicalRecords));
+        function deleteMed(i) {
+            medical.splice(i, 1);
+            localStorage.setItem('romMed', JSON.stringify(medical));
             renderMedical();
         }
 
-        function showTab(tab) {
-            document.getElementById('tasting-section').classList.toggle('hidden', tab !== 'tasting');
-            document.getElementById('medical-section').classList.toggle('hidden', tab !== 'medical');
-            document.getElementById('btn-tasting').classList.toggle('tab-active', tab === 'tasting');
-            document.getElementById('btn-medical').classList.toggle('tab-active', tab === 'medical');
-        }
-
-        // הפעלה ראשונית
-        renderTastings();
-        renderMedical();
+        // Initialize
+        render();
     </script>
 </body>
 </html>
