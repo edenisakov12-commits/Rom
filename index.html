@@ -3,179 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rom's Menu 👶</title>
+    <title>Rom 👶</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 30px; }
-        .nav-button { transition: all 0.3s ease; }
-        .active-day { border: 3px solid #7dd3fc; background-color: #f0f9ff; }
-        .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 20px; height: 70px; }
+        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; color: #334155; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 32px; border: 1px solid rgba(255,255,255,0.5); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 20px; height: 75px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+        .nav-item { color: #94a3b8; transition: all 0.3s; }
+        .nav-item.active { color: #7dd3fc; }
     </style>
 </head>
 <body class="pb-32">
 
-    <div class="p-8 text-center">
-        <h1 class="text-4xl font-light tracking-tight text-gray-800" style="font-family: serif;">Rom & Co.</h1>
-        <div class="h-1 w-12 bg-sky-300 mx-auto mt-2 rounded-full"></div>
+    <div class="p-10 text-center">
+        <h1 class="text-5xl font-light tracking-widest text-gray-800" style="font-family: serif;">Rom</h1>
+        <div class="h-1 w-8 bg-sky-300 mx-auto mt-4 rounded-full"></div>
     </div>
 
-    <main class="px-6 space-y-8">
+    <main class="px-6">
         
-        <section id="today-card">
-            <div class="glass-card shadow-xl p-8 text-center border border-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 text-sky-200 opacity-20"><i class="fas fa-utensils text-6xl"></i></div>
-                <h3 class="text-sky-500 font-bold text-sm uppercase tracking-widest mb-2">מה אוכלים היום?</h3>
-                <div id="today-food" class="text-4xl font-bold text-gray-800 mb-4">טועמים... 🥣</div>
-                <div id="today-details" class="text-gray-500 mb-6 font-medium">אנא סמנו את היום הנוכחי ברשימה</div>
-                <button onclick="markDone()" id="done-btn" class="bg-sky-400 text-white w-20 h-20 rounded-full shadow-lg shadow-sky-200 flex items-center justify-center mx-auto text-xl font-bold border-4 border-white">
-                    דוני
+        <section id="sec-home" class="space-y-8">
+            <div class="glass-card shadow-2xl p-10 text-center border-white relative">
+                <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-4 italic">Today's Tasting</h3>
+                <div id="today-food-display" class="text-4xl font-bold text-gray-800 mb-2">טועמים... 🥣</div>
+                <div id="today-date-display" class="text-gray-400 text-sm mb-8 italic">יום 1 במסע</div>
+                
+                <button onclick="markCurrentDone()" id="main-check-btn" class="bg-sky-400 text-white w-24 h-24 rounded-full shadow-xl shadow-sky-100 flex items-center justify-center mx-auto text-4xl border-8 border-white transition-all active:scale-90">
+                    ✅
                 </button>
             </div>
         </section>
 
-        <section>
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-800">המסע של רום</h2>
-                <button onclick="toggleEditMode()" class="text-sky-500 text-sm font-bold">עריכת תפריט <i class="fas fa-edit"></i></button>
-            </div>
-            <div id="horizontal-scroll" class="flex space-x-4 space-x-reverse overflow-x-auto pb-4 no-scrollbar">
+        <section id="sec-repo" class="hidden space-y-8">
+            <h2 class="text-2xl font-bold text-gray-800 mr-2">מאגר הטעימות 🥗</h2>
+            <div id="weeks-container" class="space-y-10">
                 </div>
         </section>
 
-        <section id="medical-section" class="hidden space-y-4">
-            <h2 class="text-xl font-bold text-gray-800">מעקב רפואי 🩺</h2>
-            <div id="med-list" class="space-y-3 text-right">
+        <section id="sec-med" class="hidden space-y-6">
+            <div class="flex justify-between items-end mr-2">
+                <h2 class="text-2xl font-bold text-gray-800">פנקס רפואי 🩺</h2>
+            </div>
+            
+            <div id="med-list" class="space-y-4">
                 </div>
-            <div class="glass-card p-4 border shadow-sm">
-                <input id="med-input" type="text" placeholder="הוספת חיסון או בדיקה..." class="w-full bg-transparent border-b border-sky-200 p-2 focus:outline-none text-right">
-                <button onclick="addMed()" class="w-full mt-3 text-sky-500 font-bold text-sm uppercase tracking-wider">שמור אירוע +</button>
+
+            <div class="glass-card p-6 shadow-lg space-y-3 border-sky-50">
+                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b border-gray-100 p-2 focus:outline-none text-right">
+                <div class="flex gap-2">
+                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b border-gray-100 p-2 focus:outline-none text-right text-sm">
+                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b border-gray-100 p-2 focus:outline-none text-right text-sm">
+                </div>
+                <button onclick="addMedicalRecord()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm uppercase tracking-widest">הוסף לרשימה</button>
             </div>
         </section>
 
     </main>
 
     <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
-        <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-6 shadow-2xl">
-            <button onclick="showSection('tasting')" class="nav-button text-white flex flex-col items-center opacity-100" id="nav-tasting">
-                <i class="fas fa-baby"></i>
-                <span class="text-[10px] mt-1">טעימות</span>
+        <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-4">
+            <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col items-center">
+                <i class="fas fa-layer-group text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">מאגר</span>
             </button>
-            <div class="w-14 h-14 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] -mt-10 shadow-lg text-white">
-                <i class="fas fa-heart text-xl"></i>
-            </div>
-            <button onclick="showSection('medical')" class="nav-button text-gray-500 flex flex-col items-center" id="nav-medical">
-                <i class="fas fa-notes-medical"></i>
-                <span class="text-[10px] mt-1">רפואי</span>
+            
+            <button onclick="nav('home')" id="nav-home" class="active -mt-10">
+                <div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white text-2xl">
+                    <i class="fas fa-home"></i>
+                </div>
+            </button>
+
+            <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col items-center">
+                <i class="fas fa-file-medical text-xl"></i>
+                <span class="text-[10px] mt-1 font-bold">רפואי</span>
             </button>
         </div>
     </nav>
 
     <script>
-        // תפריט התחלתי - ניתן לעריכה
-        let menu = JSON.parse(localStorage.getItem('romMenu')) || [
-            { day: 1, food: "קישוא 🥒", status: 'pending' },
-            { day: 2, food: "קישוא 🥒", status: 'pending' },
-            { day: 3, food: "קישוא 🥒", status: 'pending' },
-            { day: 4, food: "גזר 🥕", status: 'pending' },
-            { day: 5, food: "גזר 🥕", status: 'pending' },
-            { day: 6, food: "גזר 🥕", status: 'pending' },
-            { day: 7, food: "שילוב! 🥗", status: 'pending' }
+        // דאטה של טעימות
+        let tastings = JSON.parse(localStorage.getItem('romTastings')) || [
+            { id: 1, week: 1, food: "קישוא 🥒", day: 1, status: 'pending' },
+            { id: 2, week: 1, food: "קישוא 🥒", day: 2, status: 'pending' },
+            { id: 3, week: 1, food: "קישוא 🥒", day: 3, status: 'pending' },
+            { id: 4, week: 1, food: "גזר 🥕", day: 4, status: 'pending' },
+            { id: 5, week: 1, food: "גזר 🥕", day: 5, status: 'pending' },
+            { id: 6, week: 1, food: "גזר 🥕", day: 6, status: 'pending' },
+            { id: 7, week: 1, food: "שילוב! 🥗", day: 7, status: 'pending' },
+            { id: 8, week: 2, food: "בטטה 🍠", day: 8, status: 'pending' } // דוגמה לשבוע 2
         ];
 
-        let medical = JSON.parse(localStorage.getItem('romMed')) || ["חיסון גיל חודשיים"];
+        let medicalRecords = JSON.parse(localStorage.getItem('romMedical')) || [];
+        let activeIdx = 0;
 
-        function render() {
-            const container = document.getElementById('horizontal-scroll');
+        function nav(section) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`sec-${section}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(`nav-${section}`).classList.add('active');
+            if(section === 'home') document.getElementById('nav-home').classList.add('active');
+            else document.getElementById('nav-home').classList.remove('active');
+        }
+
+        function renderRepo() {
+            const container = document.getElementById('weeks-container');
             container.innerHTML = '';
             
-            menu.forEach((item, index) => {
-                const isDone = item.status === 'done';
-                container.innerHTML += `
-                    <div onclick="setToday(${index})" class="flex-shrink-0 w-24 h-32 glass-card border-2 flex flex-col items-center justify-center transition-all ${isDone ? 'bg-green-50 border-green-200' : 'border-white'}">
-                        <span class="text-[10px] text-gray-400 font-bold uppercase">יום ${item.day}</span>
-                        <div class="text-2xl my-2">${item.food.split(' ')[1] || '🥣'}</div>
-                        <span class="text-[11px] font-bold text-gray-700">${item.food.split(' ')[0]}</span>
-                        ${isDone ? '<i class="fas fa-check-circle text-green-500 mt-2"></i>' : ''}
+            const weeks = [1, 2, 3, 4];
+            weeks.forEach(w => {
+                const weekItems = tastings.filter(t => t.week === w);
+                if(weekItems.length === 0) return;
+
+                const weekHtml = `
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-sky-400 tracking-widest mr-2 uppercase">Week ${w}</h3>
+                        <div class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-2">
+                            ${weekItems.map(item => `
+                                <div onclick="setActiveFromRepo(${item.id})" class="flex-shrink-0 w-28 h-36 glass-card shadow-sm border-2 flex flex-col items-center justify-center transition-all ${item.status === 'done' ? 'bg-sky-50 border-sky-100 opacity-60' : 'border-white'}">
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase">DAY ${item.day}</span>
+                                    <div class="text-3xl my-2">${item.food.split(' ')[1] || '🥣'}</div>
+                                    <span class="text-[11px] font-bold text-gray-700">${item.food.split(' ')[0]}</span>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
+                container.innerHTML += weekHtml;
             });
-            updateTodayCard();
-            renderMedical();
         }
 
-        let currentDayIdx = 0;
-
-        function setToday(idx) {
-            currentDayIdx = idx;
-            updateTodayCard();
+        function updateHomeCard() {
+            const item = tastings[activeIdx];
+            document.getElementById('today-food-display').innerText = item.food;
+            document.getElementById('today-date-display').innerText = `יום ${item.day} במסע הטעימות`;
+            const btn = document.getElementById('main-check-btn');
+            btn.style.opacity = item.status === 'done' ? '0.5' : '1';
+            btn.style.transform = item.status === 'done' ? 'scale(0.9)' : 'scale(1)';
         }
 
-        function updateTodayCard() {
-            const item = menu[currentDayIdx];
-            document.getElementById('today-food').innerText = item.food;
-            document.getElementById('today-details').innerText = `יום ${item.day} למסע הטעימות`;
-            const btn = document.getElementById('done-btn');
-            if(item.status === 'done') {
-                btn.classList.replace('bg-sky-400', 'bg-green-500');
-                btn.innerText = '✓';
-            } else {
-                btn.classList.replace('bg-green-500', 'bg-sky-400');
-                btn.innerText = 'דוני';
-            }
+        function setActiveFromRepo(id) {
+            activeIdx = tastings.findIndex(t => t.id === id);
+            nav('home');
+            updateHomeCard();
         }
 
-        function markDone() {
-            menu[currentDayIdx].status = menu[currentDayIdx].status === 'done' ? 'pending' : 'done';
-            localStorage.setItem('romMenu', JSON.stringify(menu));
-            render();
-        }
-
-        function showSection(name) {
-            document.getElementById('tasting-section').style.display = name === 'tasting' ? 'block' : 'none';
-            document.getElementById('medical-section').style.display = name === 'medical' ? 'block' : 'none';
-            document.getElementById('nav-tasting').classList.toggle('text-white', name === 'tasting');
-            document.getElementById('nav-medical').classList.toggle('text-white', name === 'medical');
-        }
-
-        function toggleEditMode() {
-            const newFood = prompt("מה תרצו שרום יאכל ביום הזה?", menu[currentDayIdx].food);
-            if(newFood) {
-                menu[currentDayIdx].food = newFood;
-                localStorage.setItem('romMenu', JSON.stringify(menu));
-                render();
-            }
+        function markCurrentDone() {
+            tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
+            localStorage.setItem('romTastings', JSON.stringify(tastings));
+            updateHomeCard();
+            renderRepo();
         }
 
         function renderMedical() {
             const list = document.getElementById('med-list');
-            list.innerHTML = medical.map((m, i) => `
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border-r-4 border-sky-300">
-                    <span class="text-gray-700 font-medium">${m}</span>
-                    <i class="fas fa-times text-gray-300" onclick="deleteMed(${i})"></i>
+            list.innerHTML = medicalRecords.map((r, i) => `
+                <div class="glass-card p-5 shadow-sm border-r-8 border-sky-300 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-gray-800 text-lg">${r.name}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <i class="far fa-calendar-alt ml-1"></i> ${r.date} 
+                            <i class="far fa-clock mr-3 ml-1"></i> ${r.time}
+                        </div>
+                    </div>
+                    <button onclick="deleteMed(${i})" class="text-gray-300"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
         }
 
-        function addMed() {
-            const val = document.getElementById('med-input').value;
-            if(!val) return;
-            medical.push(val);
-            localStorage.setItem('romMed', JSON.stringify(medical));
-            document.getElementById('med-input').value = '';
+        function addMedicalRecord() {
+            const name = document.getElementById('med-name').value;
+            const date = document.getElementById('med-date').value;
+            const time = document.getElementById('med-time').value;
+            if(!name || !date) return;
+
+            medicalRecords.push({ name, date, time });
+            localStorage.setItem('romMedical', JSON.stringify(medicalRecords));
+            document.getElementById('med-name').value = '';
             renderMedical();
         }
 
         function deleteMed(i) {
-            medical.splice(i, 1);
-            localStorage.setItem('romMed', JSON.stringify(medical));
+            medicalRecords.splice(i, 1);
+            localStorage.setItem('romMedical', JSON.stringify(medicalRecords));
             renderMedical();
         }
 
-        // Initialize
-        render();
+        // Init
+        renderRepo();
+        updateHomeCard();
+        renderMedical();
     </script>
 </body>
 </html>
