@@ -15,7 +15,7 @@
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 32px; border: 1px solid rgba(255,255,255,0.5); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 10px 15px; height: 75px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
-        .nav-item { color: #94a3b8; transition: all 0.3s; flex: 1; display: flex; flex-col; items: center; justify-content: center; }
+        .nav-item { color: #94a3b8; transition: all 0.3s; flex: 1; display: flex; flex-direction: column; items: center; justify-content: center; }
         .nav-item.active { color: #7dd3fc; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
@@ -30,6 +30,8 @@
         .btn-next-week { animation: pulse-gold 2s infinite; border: 2px solid #fbbf24 !important; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
         .nav-arrow { cursor: pointer; padding: 5px 10px; }
         .nav-arrow.disabled { opacity: 0.2; }
+        /* תיקון החיתוך בקרוסלה */
+        #week-carousel { padding: 15px 10px !important; }
     </style>
 </head>
 <body class="pb-24">
@@ -73,7 +75,7 @@
                 <button onclick="toggleModal('danger-modal', true)" class="w-12 h-12 bg-red-50 text-red-500 shadow-md rounded-full flex items-center justify-center text-xl border border-red-100 font-bold">!</button>
             </div>
             <div id="ideas-content" class="space-y-4">
-                <div class="text-center p-10 text-gray-400 italic">הזינו תאריך לידה בלחיצה על סמל התינוק בבר...</div>
+                <div class="text-center p-10 text-gray-400 italic">טוען נתונים...</div>
             </div>
         </section>
 
@@ -134,9 +136,7 @@
         <div class="bottom-nav flex items-center w-full max-w-sm">
             <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col"><i class="fas fa-archive text-lg"></i><span class="text-[8px] mt-1 font-bold">מאגר</span></button>
             <button onclick="nav('ideas')" id="nav-ideas" class="nav-item flex flex-col"><i class="fas fa-lightbulb text-lg"></i><span class="text-[8px] mt-1 font-bold">רעיונות</span></button>
-            
             <button onclick="nav('home')" id="nav-home" class="active flex-shrink-0 -mt-8 mx-2"><div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white"><i class="fas fa-heart text-xl"></i></div></button>
-            
             <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col"><i class="fas fa-notes-medical text-lg"></i><span class="text-[8px] mt-1 font-bold">רפואי</span></button>
             <button onclick="toggleModal('baby-modal', true)" id="nav-baby" class="nav-item flex flex-col"><i class="fas fa-baby text-lg"></i><span class="text-[8px] mt-1 font-bold">רום</span></button>
         </div>
@@ -144,13 +144,15 @@
 
     <script>
         const k1 = "AIzaSyCNJE1_9GV", k2 = "z9P7W8wuDo5IZEGqbLv5cvzI";
-        const firebaseConfig = { apiKey: k1 + k2, authDomain: "romtastings.firebaseapp.com", databaseURL: "https://romtastings-default-rtdb.europe-west1.firebasedatabase.app", projectId: "romtastings" };
+        const firebaseConfig = { apiKey: k1 + k2, authDomain: "romtastings.firebaseapp.com", databaseURL: "https://romtastings-default-rtdb.europe-west1.firebasedatabase.app/", projectId: "romtastings" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null;
 
         db.ref('rom_sync').on('value', (s) => {
             const d = s.val(); if (d) { tastings = d.tastings || []; medical = d.medical || []; babyDOB = d.babyDOB || ""; renderHome(); renderRepo(); renderMed(); updateIdeas(); }
+            document.getElementById('status-badge').innerText = "● מסונכרן";
+            document.getElementById('status-badge').className = "sync-badge bg-green-50 text-green-500";
         });
 
         function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB }); }
@@ -171,8 +173,11 @@
 
         function updateIdeas() {
             if(!babyDOB) return;
-            const diff = new Date() - new Date(babyDOB);
-            const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44));
+            const dob = new Date(babyDOB);
+            const now = new Date();
+            let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+            if (now.getDate() < dob.getDate()) months--;
+            
             const container = document.getElementById('ideas-content');
             let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
             if(months < 6) {
