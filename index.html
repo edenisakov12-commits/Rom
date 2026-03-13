@@ -11,22 +11,29 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; color: #334155; overflow-x: hidden; }
+        
+        /* הגדלת הגופן הכללי בדרגה אחת */
+        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; color: #334155; overflow-x: hidden; font-size: 110%; }
+        
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 32px; border: 1px solid rgba(255,255,255,0.5); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 10px 20px; height: 70px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+        .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 10px 20px; height: 75px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
         .nav-item { color: #94a3b8; transition: all 0.3s; }
         .nav-item.active { color: #7dd3fc; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
-        .sync-badge { font-size: 9px; position: absolute; top: 10px; left: 15px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
+        .sync-badge { font-size: 10px; position: absolute; top: 10px; left: 15px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
         
-        /* תיקון מרכוז הווי */
-        .check-btn { width: 75px; height: 75px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid white; transition: all 0.3s; box-shadow: 0 10px 20px rgba(56,189,248,0.3); }
+        .check-btn { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid white; transition: all 0.3s; box-shadow: 0 10px 20px rgba(56,189,248,0.3); }
         .check-btn i { display: block; line-height: 0; }
 
-        /* תיקון הקרוסלה שלא תיחתך */
         #week-carousel { padding: 10px 5px; margin-top: 5px; }
+
+        /* סגנון ל-Dropdown במאגר */
+        .repo-item-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .repo-item.open .repo-item-content { max-height: 250px; margin-top: 15px; }
+        .repo-item.open .chevron { transform: rotate(180deg); }
+        .chevron { transition: transform 0.3s; }
     </style>
 </head>
 <body class="pb-24">
@@ -39,11 +46,11 @@
     </div>
 
     <main class="px-6">
-        <section id="sec-home" class="space-y-4">
+        <section id="sec-home" class="space-y-5">
             <div class="glass-card shadow-xl p-8 text-center border-white relative overflow-hidden">
-                <h3 class="text-sky-400 font-bold text-[10px] uppercase tracking-widest mb-2 italic">מה אוכלים היום?</h3>
+                <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-2 italic">מה אוכלים היום?</h3>
                 <div id="today-food-text" class="text-5xl font-bold text-gray-800 mb-1 italic">טוען...</div>
-                <div id="today-day-text" class="text-gray-400 text-xs mb-6 italic">טוען נתונים...</div>
+                <div id="today-day-text" class="text-gray-400 text-sm mb-6 italic">טוען נתונים...</div>
                 
                 <div class="flex justify-center">
                     <button onclick="markDayDone()" id="main-check-btn" class="check-btn bg-sky-400 text-white text-3xl active:scale-90">
@@ -52,9 +59,9 @@
                 </div>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-3">
                 <div class="flex justify-between items-center px-2">
-                    <h2 class="text-lg font-bold text-gray-800 italic">המסע של רום <span class="text-sky-300 text-xs cursor-pointer" onclick="openModalForEdit(activeWeek)"><i class="fas fa-edit mr-2"></i></span></h2>
+                    <h2 class="text-xl font-bold text-gray-800 italic text-right">המסע של רום <span class="text-sky-300 text-sm cursor-pointer" onclick="openModalForEdit(activeWeek)"><i class="fas fa-edit mr-2"></i></span></h2>
                 </div>
                 <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-2 italic"></div>
             </div>
@@ -62,7 +69,7 @@
 
         <section id="sec-repo" class="hidden space-y-4">
             <h2 class="text-2xl font-bold text-gray-800 font-serif mr-2 text-right">מאגר שבועות</h2>
-            <div id="repo-list" class="space-y-3"></div>
+            <div id="repo-list" class="space-y-4"></div>
             <button onclick="openModalForNew()" class="w-full py-4 border-2 border-dashed border-sky-200 rounded-3xl text-sky-400 font-bold">+ הוספת שבוע חדש</button>
         </section>
 
@@ -70,12 +77,12 @@
             <h2 class="text-2xl font-bold text-gray-800 mr-2 text-right">פנקס רפואי 🩺</h2>
             <div id="med-list" class="space-y-3"></div>
             <div class="glass-card p-6 shadow-lg space-y-3 text-right italic">
-                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right">
+                <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right text-base">
                 <div class="flex gap-2">
-                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-xs">
-                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-xs">
+                    <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm">
+                    <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm">
                 </div>
-                <button onclick="addMed()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-sm">שמור אירוע</button>
+                <button onclick="addMed()" class="w-full mt-2 bg-gray-800 text-white p-3 rounded-2xl font-bold text-base">שמור אירוע</button>
             </div>
         </section>
     </main>
@@ -83,12 +90,12 @@
     <div id="week-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-center">
             <h3 id="modal-title" class="text-2xl font-bold text-gray-800">ניהול שבוע ✨</h3>
-            <input id="modal-dates" type="text" placeholder="תאריכים" class="w-full border rounded-2xl p-3 text-right text-sm">
-            <input id="modal-emoji" type="text" placeholder="אימוג'י (🥕)" class="w-full border rounded-2xl p-3 text-right text-sm">
-            <textarea id="modal-foods" placeholder="ירקות (מופרדים בפסיקים)" class="w-full border rounded-2xl p-3 text-right text-sm h-24"></textarea>
+            <input id="modal-dates" type="text" placeholder="תאריכים" class="w-full border rounded-2xl p-3 text-right text-base">
+            <input id="modal-emoji" type="text" placeholder="אימוג'י" class="w-full border rounded-2xl p-3 text-right text-base">
+            <textarea id="modal-foods" placeholder="ירקות" class="w-full border rounded-2xl p-3 text-right text-base h-24"></textarea>
             <div class="flex gap-2">
-                <button onclick="saveWeek()" class="flex-1 bg-sky-400 text-white p-3 rounded-2xl font-bold text-sm">שמור</button>
-                <button onclick="toggleModal(false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold text-sm">ביטול</button>
+                <button onclick="saveWeek()" class="flex-1 bg-sky-400 text-white p-3 rounded-2xl font-bold text-base">שמור</button>
+                <button onclick="toggleModal(false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold text-base">ביטול</button>
             </div>
         </div>
     </div>
@@ -96,15 +103,15 @@
     <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
         <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-4">
             <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col items-center">
-                <i class="fas fa-archive text-xl"></i><span class="text-[9px] mt-1 font-bold">מאגר</span>
+                <i class="fas fa-archive text-xl"></i><span class="text-[10px] mt-1 font-bold">מאגר</span>
             </button>
             <button onclick="nav('home')" id="nav-home" class="active -mt-8">
-                <div class="w-14 h-14 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white">
-                    <i class="fas fa-heart text-lg"></i>
+                <div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white">
+                    <i class="fas fa-heart text-xl"></i>
                 </div>
             </button>
             <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col items-center">
-                <i class="fas fa-notes-medical text-xl"></i><span class="text-[9px] mt-1 font-bold">רפואי</span>
+                <i class="fas fa-notes-medical text-xl"></i><span class="text-[10px] mt-1 font-bold">רפואי</span>
             </button>
         </div>
     </nav>
@@ -144,9 +151,7 @@
             }
         });
 
-        function uploadData() {
-            db.ref('rom_sync').set({ tastings, medical });
-        }
+        function uploadData() { db.ref('rom_sync').set({ tastings, medical }); }
 
         function nav(s) {
             document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
@@ -165,11 +170,11 @@
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
                 const displayEmoji = (index === 6) ? "🥗" : (item.emoji || "🥣");
                 carousel.innerHTML += `
-                    <div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-28 h-40 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105 shadow-md' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}">
-                        <span class="text-[9px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span>
-                        <div class="text-3xl mb-1">${displayEmoji}</div>
-                        <span class="text-[11px] font-bold text-gray-700">${item.food}</span>
-                        ${item.status === 'done' ? '<div class="mt-1 text-sky-400"><i class="fas fa-check-circle text-xs"></i></div>' : ''}
+                    <div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105 shadow-md' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}">
+                        <span class="text-[10px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span>
+                        <div class="text-4xl mb-2">${displayEmoji}</div>
+                        <span class="text-xs font-bold text-gray-700">${item.food}</span>
+                        ${item.status === 'done' ? '<div class="mt-2 text-sky-400"><i class="fas fa-check-circle text-sm"></i></div>' : ''}
                     </div>`;
             });
 
@@ -177,8 +182,7 @@
             if (current) {
                 document.getElementById('today-food-text').innerText = current.food;
                 document.getElementById('today-day-text').innerText = `יום ${current.day} למסע`;
-                const btn = document.getElementById('main-check-btn');
-                btn.style.backgroundColor = current.status === 'done' ? "#10b981" : "#38bdf8";
+                document.getElementById('main-check-btn').style.backgroundColor = current.status === 'done' ? "#10b981" : "#38bdf8";
             }
         }
 
@@ -188,6 +192,47 @@
             uploadData();
         }
 
+        function toggleRepoItem(w) {
+            const el = document.getElementById(`repo-item-${w}`);
+            const isOpen = el.classList.contains('open');
+            document.querySelectorAll('.repo-item').forEach(item => item.classList.remove('open'));
+            if (!isOpen) el.classList.add('open');
+        }
+
+        function renderRepo() {
+            const container = document.getElementById('repo-list');
+            container.innerHTML = '';
+            const weeks = [...new Set(tastings.map(t => t.week))];
+            weeks.forEach(w => {
+                const items = tastings.filter(t => t.week === w);
+                const done = items.every(t => t.status === 'done');
+                const weekHtml = `
+                    <div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleRepoItem(${w})">
+                            <div onclick="event.stopPropagation(); activeWeek=${w}; activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');">
+                                <div class="text-xl font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div>
+                                <div class="text-xs text-gray-400 mt-1">${items[0].date || 'טרם נקבע'}</div>
+                            </div>
+                            <i class="fas fa-chevron-down text-gray-300 chevron"></i>
+                        </div>
+                        <div class="repo-item-content">
+                            <div class="flex space-x-3 space-x-reverse overflow-x-auto no-scrollbar py-2">
+                                ${items.map((it, idx) => `
+                                    <div class="flex-shrink-0 w-20 h-28 bg-white/50 rounded-2xl flex flex-col items-center justify-center border border-gray-50">
+                                        <div class="text-xl">${idx === 6 ? "🥗" : (it.emoji || "🥣")}</div>
+                                        <span class="text-[9px] font-bold mt-1 text-gray-600">${it.food}</span>
+                                        ${it.status === 'done' ? '<i class="fas fa-check text-[8px] text-green-400 mt-1"></i>' : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button onclick="openModalForEdit(${w})" class="w-full mt-3 py-2 text-xs text-sky-400 border-t border-gray-50 font-bold italic">עריכת שבוע ${w} <i class="fas fa-edit ml-1"></i></button>
+                        </div>
+                    </div>`;
+                container.innerHTML += weekHtml;
+            });
+        }
+
+        // שאר הפונקציות (Medical, Modal וכו') נשארו ללא שינוי
         function toggleModal(show) { document.getElementById('week-modal').classList.toggle('active', show); }
         function openModalForNew() { editingWeek = null; toggleModal(true); }
         function openModalForEdit(w) { 
@@ -200,7 +245,6 @@
                 toggleModal(true); 
             }
         }
-
         function saveWeek() {
             const dates = document.getElementById('modal-dates').value;
             const emoji = document.getElementById('modal-emoji').value;
@@ -219,34 +263,14 @@
             }
             uploadData(); toggleModal(false);
         }
-
-        function renderRepo() {
-            const container = document.getElementById('repo-list');
-            container.innerHTML = '';
-            const weeks = [...new Set(tastings.map(t => t.week))];
-            weeks.forEach(w => {
-                const items = tastings.filter(t => t.week === w);
-                const done = items.every(t => t.status === 'done');
-                container.innerHTML += `
-                    <div class="glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm flex justify-between items-center">
-                        <div onclick="activeWeek=${w}; activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');">
-                            <div class="text-lg font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div>
-                            <div class="text-[10px] text-gray-400">${items[0].date || 'טרם נקבע'}</div>
-                        </div>
-                        <button onclick="openModalForEdit(${w})" class="text-gray-300 p-2"><i class="fas fa-edit"></i></button>
-                    </div>`;
-            });
-        }
-
         function renderMed() {
             const list = document.getElementById('med-list');
             list.innerHTML = medical.map((m, i) => `
-                <div class="glass-card p-4 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic text-sm">
-                    <div><div class="font-bold text-gray-800">${m.name}</div><div class="text-[10px] text-gray-500">${m.date} | ${m.time}</div></div>
-                    <button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200"><i class="fas fa-trash-alt"></i></button>
+                <div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic text-base">
+                    <div><div class="font-bold text-gray-800">${m.name}</div><div class="text-xs text-gray-500">${m.date} | ${m.time}</div></div>
+                    <button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200 p-2"><i class="fas fa-trash-alt"></i></button>
                 </div>`).join('');
         }
-
         function addMed() {
             const name = document.getElementById('med-name').value;
             const date = document.getElementById('med-date').value;
