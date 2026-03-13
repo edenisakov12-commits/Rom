@@ -80,7 +80,8 @@
                 <h4 class="text-sm font-bold text-sky-500 mb-2">מחשבון שילובים אישי</h4>
                 <div class="flex gap-2">
                     <input id="custom-mix-input" type="text" placeholder="למשל: עוף וגזר" class="flex-1 bg-white border rounded-xl p-2 text-sm">
-                    <button onclick="calculateCustomNutrition()" class="bg-sky-400 text-white px-4 rounded-xl text-sm font-bold">בדוק</button>
+                    <button onclick="calculateCustomNutrition()" class="bg-sky-400 text-white px-3 rounded-xl text-sm font-bold">בדוק</button>
+                    <button onclick="openAddIdeaModal()" class="bg-green-400 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md"><i class="fas fa-plus"></i></button>
                 </div>
                 <div id="custom-result" class="mt-2 text-[10px] text-gray-500 hidden bg-sky-50 p-2 rounded-lg"></div>
             </div>
@@ -110,10 +111,22 @@
     </main>
 
     <div id="nutri-modal" class="modal">
+        <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right overflow-y-auto max-h-[80vh]">
+            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500 border-b pb-2"></h3>
+            <div id="nutri-body" class="text-sm space-y-4 text-gray-600"></div>
+            <button onclick="toggleModal('nutri-modal', false)" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold sticky bottom-0">סגור</button>
+        </div>
+    </div>
+
+    <div id="add-idea-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right">
-            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500"></h3>
-            <div id="nutri-body" class="text-sm space-y-2 text-gray-600"></div>
-            <button onclick="toggleModal('nutri-modal', false)" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold">סגור</button>
+            <h3 class="text-2xl font-bold text-gray-800">הוספת שילוב חדש 🥗</h3>
+            <input id="new-idea-name" type="text" placeholder="שם המנה (למשל: המרק של רום)" class="w-full border rounded-2xl p-3 text-right text-base">
+            <p id="new-idea-items" class="text-xs text-sky-400 font-bold"></p>
+            <div class="flex gap-2">
+                <button onclick="saveNewIdea()" class="flex-1 bg-green-400 text-white p-3 rounded-2xl font-bold">שמור לרשימה</button>
+                <button onclick="toggleModal('add-idea-modal', false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold">ביטול</button>
+            </div>
         </div>
     </div>
 
@@ -164,44 +177,61 @@
         const firebaseConfig = { apiKey: k1 + k2, authDomain: "romtastings.firebaseapp.com", databaseURL: "https://romtastings-default-rtdb.europe-west1.firebasedatabase.app/", projectId: "romtastings" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null;
+        let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [];
 
         const nutriDB = {
-            "בטטה": "עשירה בויטמין A (בטא קרוטן) לחיזוק הראייה ומערכת החיסון.",
-            "גזר": "ויטמין A ואשלגן. מצוין לעיכול ולעור.",
-            "קישוא": "קל מאוד לעיכול, עשיר במים ובויטמין C.",
-            "תפוח": "סיבים תזונתיים (פקטין) וויטמינים מקבוצת B.",
-            "עדשים": "מקור מעולה לברזל צמחי וחלבון לבניית השרירים.",
-            "עוף": "חלבון איכותי וברזל הנספג בקלות. חיוני למניעת אנמיה.",
-            "הודו": "עשיר מאוד בברזל ובויטמין B12.",
-            "אבוקדו": "שומנים בריאים (חומצה אולאית) להתפתחות המוח.",
-            "אפונה": "חלבון, סיבים וויטמין K לבניית העצמות.",
-            "ברוקולי": "סידן, ויטמין C וחומצה פולית."
+            "בטטה": { info: "ויטמין A (בטא קרוטן) לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
+            "גזר": { info: "עשיר בויטמין A ונוגדי חמצון. מצוין לעיכול.", vit: ["A", "K"], mineral: "סיבים" },
+            "קישוא": { info: "קל לעיכול, עשיר במגנזיום וויטמין C.", vit: ["C", "B6"], mineral: "מגנזיום" },
+            "תפוח": { info: "סיבים (פקטין), ויטמינים מקבוצת B.", vit: ["B1", "B2", "C"], mineral: "סיבים" },
+            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9 (חומצה פולית)"], mineral: "ברזל, חלבון" },
+            "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל, חלבון" },
+            "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
+            "אבוקדו": { info: "שומנים בריאים (חומצה אולאית) למוח.", vit: ["E", "K", "B5"], mineral: "שומן בריא" },
+            "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
+            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" }
         };
 
-        const predefinedIdeas = [
-            { title: "המרק הכתום הקלאסי", ingredients: ["בטטה", "גזר", "עדשים"], desc: "פצצת ויטמינים לחיזוק החיסון" },
-            { title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
-            { title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
-            { title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" }
+        const baseIdeas = [
+            { id: 1, title: "המרק הכתום הקלאסי", ingredients: ["בטטה", "גזר", "עדשים"], desc: "פצצת ויטמינים לחיזוק החיסון" },
+            { id: 2, title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
+            { id: 3, title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
+            { id: 4, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" }
         ];
 
         db.ref('rom_sync').on('value', (s) => {
-            const d = s.val(); if (d) { tastings = d.tastings || []; medical = d.medical || []; babyDOB = d.babyDOB || ""; renderHome(); renderRepo(); renderMed(); updateIdeas(); }
+            const d = s.val(); if (d) { 
+                tastings = d.tastings || []; 
+                medical = d.medical || []; 
+                babyDOB = d.babyDOB || ""; 
+                customIdeas = d.customIdeas || [];
+                renderHome(); renderRepo(); renderMed(); updateIdeas(); 
+            }
             document.getElementById('status-badge').innerText = "● מסונכרן";
             document.getElementById('status-badge').className = "sync-badge bg-green-50 text-green-500";
         });
 
-        function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB }); }
+        function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB, customIdeas }); }
 
         function showNutri(title, ingredients) {
             document.getElementById('nutri-title').innerText = title;
-            let bodyHtml = "<b>מה זה נותן לרום?</b><br><ul class='list-disc pr-4 mt-2'>";
+            let bodyHtml = "";
             ingredients.forEach(ing => {
-                const info = nutriDB[ing] || "ערכים תזונתיים חיוניים להתפתחות.";
-                bodyHtml += `<li class='mb-2'><b>${ing}:</b> ${info}</li>`;
+                const data = nutriDB[ing];
+                if(data) {
+                    bodyHtml += `
+                    <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-sky-400">
+                        <div class="font-bold text-gray-800 text-lg mb-1">${ing}</div>
+                        <p class="text-xs text-gray-600 mb-2">${data.info}</p>
+                        <div class="flex flex-wrap gap-1">
+                            ${data.vit.map(v => `<span class="bg-amber-50 text-amber-600 text-[10px] px-2 py-0.5 rounded-full font-bold">ויטמין ${v}</span>`).join('')}
+                            <span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-full font-bold">${data.mineral}</span>
+                        </div>
+                    </div>`;
+                } else {
+                    bodyHtml += `<div class="p-3 bg-gray-50 rounded-xl"><b>${ing}:</b> ערכים תזונתיים חיוניים.</div>`;
+                }
             });
-            bodyHtml += "</ul>";
             document.getElementById('nutri-body').innerHTML = bodyHtml;
             toggleModal('nutri-modal', true);
         }
@@ -210,16 +240,40 @@
             const input = document.getElementById('custom-mix-input').value;
             const resDiv = document.getElementById('custom-result');
             if(!input) return;
-            let found = [];
-            Object.keys(nutriDB).forEach(key => { if(input.includes(key)) found.push(key); });
+            let found = Object.keys(nutriDB).filter(key => input.includes(key));
             if(found.length > 0) {
-                resDiv.innerHTML = `<b>נמצאו רכיבים:</b> ${found.join(', ')}<br>לחץ לצפייה בערכים.`;
+                resDiv.innerHTML = `<b>רכיבים שזוהו:</b> ${found.join(', ')}<br><span class="underline">לחץ כאן לניתוח מעמיק</span>`;
                 resDiv.classList.remove('hidden');
                 resDiv.onclick = () => showNutri(input, found);
             } else {
-                resDiv.innerHTML = "לא נמצאו רכיבים מוכרים במערכת, אך השילוב נשמע מעניין!";
+                resDiv.innerHTML = "לא זוהו רכיבים מוכרים במחשבון.";
                 resDiv.classList.remove('hidden');
             }
+        }
+
+        function openAddIdeaModal() {
+            const input = document.getElementById('custom-mix-input').value;
+            if(!input) return alert("הזן קודם רכיבים במחשבון");
+            document.getElementById('new-idea-items').innerText = `רכיבים: ${input}`;
+            toggleModal('add-idea-modal', true);
+        }
+
+        function saveNewIdea() {
+            const name = document.getElementById('new-idea-name').value;
+            const input = document.getElementById('custom-mix-input').value;
+            if(!name) return;
+            let found = Object.keys(nutriDB).filter(key => input.includes(key));
+            customIdeas.push({ id: Date.now(), title: name, ingredients: found.length > 0 ? found : [input], desc: "שילוב בהתאמה אישית" });
+            uploadData();
+            toggleModal('add-idea-modal', false);
+            document.getElementById('new-idea-name').value = "";
+            document.getElementById('custom-mix-input').value = "";
+            document.getElementById('custom-result').classList.add('hidden');
+        }
+
+        function deleteIdea(id) {
+            customIdeas = customIdeas.filter(i => i.id !== id);
+            uploadData();
         }
 
         function updateIdeas() {
@@ -231,13 +285,16 @@
             const container = document.getElementById('ideas-content');
             let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
             
-            predefinedIdeas.forEach(idea => {
+            const allIdeas = [...baseIdeas, ...customIdeas];
+            allIdeas.forEach(idea => {
+                const isCustom = !baseIdeas.find(b => b.id === idea.id);
                 html += `
-                <div class="glass-card p-5 nutrition-card border border-white hover:border-sky-200" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
-                    <h4 class="font-bold text-lg text-gray-800">${idea.title} 🥗</h4>
-                    <p class="text-xs text-gray-500 mb-2">${idea.desc}</p>
-                    <div class="flex gap-2">
-                        ${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-1 rounded-lg">#${ing}</span>`).join('')}
+                <div class="glass-card p-5 nutrition-card border border-white hover:border-sky-200 relative" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
+                    ${isCustom ? `<button onclick="event.stopPropagation(); deleteIdea(${idea.id})" class="absolute top-4 left-4 text-gray-300 hover:text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    <h4 class="font-bold text-lg text-gray-800">${idea.title}</h4>
+                    <p class="text-[10px] text-gray-400 mb-2">${idea.desc}</p>
+                    <div class="flex flex-wrap gap-1">
+                        ${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-lg">#${ing}</span>`).join('')}
                     </div>
                 </div>`;
             });
