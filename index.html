@@ -179,6 +179,7 @@
         const db = firebase.database();
         let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [];
 
+        // מאגר נתונים מורחב
         const nutriDB = {
             "בטטה": { info: "ויטמין A (בטא קרוטן) לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
             "גזר": { info: "עשיר בויטמין A ונוגדי חמצון. מצוין לעיכול.", vit: ["A", "K"], mineral: "סיבים" },
@@ -191,15 +192,15 @@
             "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
             "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
             "בננה": { info: "אנרגיה זמינה, אשלגן וויטמין B6.", vit: ["B6", "C"], mineral: "אשלגן" },
-            "דלעת": { info: "ויטמין A לראייה ונוגדי חמצון.", vit: ["A", "C"], mineral: "אשלגן" },
-            "תפוח אדמה": { info: "פחמימה מורכבת המספקת אנרגיה.", vit: ["C", "B6"], mineral: "אשלגן" },
-            "כרובית": { info: "ויטמין C וסיבים תזונתיים.", vit: ["C", "K"], mineral: "סיבים" },
-            "סלק": { info: "מקור טוב לחומצה פולית ומנגן.", vit: ["B9", "C"], mineral: "ברזל" },
-            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1", "B6"], mineral: "סידן, ברזל" },
-            "קינואה": { info: "חלבון מלא המכיל את כל חומצות האמינו.", vit: ["B2", "E"], mineral: "מגנזיום, חלבון" },
-            "אורז": { info: "קל מאוד לעיכול ואנרגטי.", vit: ["B1", "B3"], mineral: "סיבים" },
-            "סלמון": { info: "חומצות שומן אומגה 3 להתפתחות המוח.", vit: ["D", "B12"], mineral: "אומגה 3" },
-            "ביצה": { info: "חלבון מושלם וכולין לבריאות המוח.", vit: ["A", "D", "B12"], mineral: "חלבון" }
+            "דלעת": { info: "עשירה בבטא-קרוטן לחיזוק המערכת החיסונית.", vit: ["A", "C", "E"], mineral: "אשלגן" },
+            "תפוח אדמה": { info: "מקור מצוין לפחמימות מורכבות ואנרגיה.", vit: ["C", "B6"], mineral: "אשלגן, מגנזיום" },
+            "סלק": { info: "עשיר בניטרטים טבעיים וברזל לשיפור זרימת הדם.", vit: ["B9", "C"], mineral: "ברזל, מנגן" },
+            "כרובית": { info: "דלה בקלוריות ועשירה בסיבים תזונתיים.", vit: ["C", "K", "B6"], mineral: "סיבים, אשלגן" },
+            "אגס": { info: "קל מאוד לעיכול, עדין לבטן של תינוקות.", vit: ["C", "K"], mineral: "נחושת" },
+            "שיבולת שועל": { info: "סיבים מסיסים לשובע ועיכול תקין.", vit: ["B1", "B5"], mineral: "ברזל, אבץ" },
+            "ביצה": { info: "חלבון מלא וכולין להתפתחות המוח.", vit: ["D", "B12", "A"], mineral: "חלבון" },
+            "סלמון": { info: "חומצות שומן אומגה 3 להתפתחות קוגניטיבית.", vit: ["D", "B12"], mineral: "אומגה 3" },
+            "טחינה": { info: "מקור צמחי מעולה לסידן ושומן בריא.", vit: ["B1", "B2"], mineral: "סידן, ברזל" }
         };
 
         const baseIdeas = [
@@ -207,8 +208,7 @@
             { id: 2, title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
             { id: 3, title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
             { id: 4, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" },
-            { id: 5, title: "מרק פחמימות מזין", ingredients: ["תפוח אדמה", "דלעת", "עוף"], desc: "שילוב משביע ומנחם" },
-            { id: 6, title: "מנת דגים ועוד", ingredients: ["סלמון", "כרובית", "אורז"], desc: "אומגה 3 להתפתחות המוח" }
+            { id: 5, title: "מרק פחמימות מזין", ingredients: ["תפוח אדמה", "דלעת", "עוף"], desc: "משביע ומספק אנרגיה רבה" }
         ];
 
         db.ref('rom_sync').on('value', (s) => {
@@ -300,6 +300,7 @@
             const allIdeas = [...baseIdeas, ...customIdeas];
             allIdeas.forEach(idea => {
                 const isCustom = !baseIdeas.find(b => b.id === idea.id);
+                // עדכון אירוע הלחיצה לפתיחת הפופ-אפ המלא
                 html += `
                 <div class="glass-card p-5 nutrition-card border border-white hover:border-sky-200 relative" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
                     ${isCustom ? `<button onclick="event.stopPropagation(); deleteIdea(${idea.id})" class="absolute top-4 left-4 text-gray-300 hover:text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>` : ''}
