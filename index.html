@@ -11,10 +11,7 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        
-        /* הגדלת הגופן הכללי בדרגה אחת */
         body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; color: #334155; overflow-x: hidden; font-size: 110%; }
-        
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 32px; border: 1px solid rgba(255,255,255,0.5); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .bottom-nav { background: #1a1a1a; border-radius: 50px; margin: 10px 20px; height: 75px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
@@ -23,13 +20,9 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
         .sync-badge { font-size: 10px; position: absolute; top: 10px; left: 15px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
-        
         .check-btn { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid white; transition: all 0.3s; box-shadow: 0 10px 20px rgba(56,189,248,0.3); }
         .check-btn i { display: block; line-height: 0; }
-
         #week-carousel { padding: 10px 5px; margin-top: 5px; }
-
-        /* סגנון ל-Dropdown במאגר */
         .repo-item-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .repo-item.open .repo-item-content { max-height: 250px; margin-top: 15px; }
         .repo-item.open .chevron { transform: rotate(180deg); }
@@ -51,14 +44,10 @@
                 <h3 class="text-sky-400 font-bold text-xs uppercase tracking-widest mb-2 italic">מה אוכלים היום?</h3>
                 <div id="today-food-text" class="text-5xl font-bold text-gray-800 mb-1 italic">טוען...</div>
                 <div id="today-day-text" class="text-gray-400 text-sm mb-6 italic">טוען נתונים...</div>
-                
                 <div class="flex justify-center">
-                    <button onclick="markDayDone()" id="main-check-btn" class="check-btn bg-sky-400 text-white text-3xl active:scale-90">
-                        <i class="fas fa-check"></i>
-                    </button>
+                    <button onclick="markDayDone()" id="main-check-btn" class="check-btn bg-sky-400 text-white text-3xl active:scale-90"><i class="fas fa-check"></i></button>
                 </div>
             </div>
-
             <div class="space-y-3">
                 <div class="flex justify-between items-center px-2">
                     <h2 class="text-xl font-bold text-gray-800 italic text-right">המסע של רום <span class="text-sky-300 text-sm cursor-pointer" onclick="openModalForEdit(activeWeek)"><i class="fas fa-edit mr-2"></i></span></h2>
@@ -78,6 +67,7 @@
             <div id="med-list" class="space-y-3"></div>
             <div class="glass-card p-6 shadow-lg space-y-3 text-right italic">
                 <input id="med-name" type="text" placeholder="שם החיסון / בדיקה" class="w-full bg-transparent border-b p-2 focus:outline-none text-right text-base">
+                <input id="med-loc" type="text" placeholder="מיקום / כתובת" class="w-full bg-transparent border-b p-2 focus:outline-none text-right text-base">
                 <div class="flex gap-2">
                     <input id="med-date" type="date" class="w-1/2 bg-transparent border-b p-2 text-sm">
                     <input id="med-time" type="time" class="w-1/2 bg-transparent border-b p-2 text-sm">
@@ -102,17 +92,9 @@
 
     <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
         <div class="bottom-nav flex items-center justify-around w-full max-w-sm px-4">
-            <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col items-center">
-                <i class="fas fa-archive text-xl"></i><span class="text-[10px] mt-1 font-bold">מאגר</span>
-            </button>
-            <button onclick="nav('home')" id="nav-home" class="active -mt-8">
-                <div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white">
-                    <i class="fas fa-heart text-xl"></i>
-                </div>
-            </button>
-            <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col items-center">
-                <i class="fas fa-notes-medical text-xl"></i><span class="text-[10px] mt-1 font-bold">רפואי</span>
-            </button>
+            <button onclick="nav('repo')" id="nav-repo" class="nav-item flex flex-col items-center"><i class="fas fa-archive text-xl"></i><span class="text-[10px] mt-1 font-bold">מאגר</span></button>
+            <button onclick="nav('home')" id="nav-home" class="active -mt-8"><div class="w-16 h-16 bg-sky-400 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl text-white"><i class="fas fa-heart text-xl"></i></div></button>
+            <button onclick="nav('med')" id="nav-med" class="nav-item flex flex-col items-center"><i class="fas fa-notes-medical text-xl"></i><span class="text-[10px] mt-1 font-bold">רפואי</span></button>
         </div>
     </nav>
 
@@ -128,26 +110,17 @@
             messagingSenderId: "27656464730",
             appId: "1:27656464730:web:1e53904d7f3d9149356b63"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
-        let tastings = [];
-        let medical = [];
-        let activeWeek = 1;
-        let activeIdx = 0;
-        let editingWeek = null;
+        let tastings = [], medical = [], activeWeek = 1, activeIdx = 0, editingWeek = null;
 
         db.ref('rom_sync').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                tastings = data.tastings || [];
-                medical = data.medical || [];
+                tastings = data.tastings || []; medical = data.medical || [];
                 document.getElementById('status-badge').innerText = "● מסונכרן";
                 document.getElementById('status-badge').className = "sync-badge bg-green-50 text-green-500";
-                renderHome();
-                renderRepo();
-                renderMed();
+                renderHome(); renderRepo(); renderMed();
             }
         });
 
@@ -165,7 +138,6 @@
             carousel.innerHTML = '';
             const weekDays = tastings.filter(t => t.week === activeWeek);
             if(weekDays.length === 0) return;
-
             weekDays.forEach((item, index) => {
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
                 const displayEmoji = (index === 6) ? "🥗" : (item.emoji || "🥣");
@@ -177,7 +149,6 @@
                         ${item.status === 'done' ? '<div class="mt-2 text-sky-400"><i class="fas fa-check-circle text-sm"></i></div>' : ''}
                     </div>`;
             });
-
             const current = tastings[activeIdx];
             if (current) {
                 document.getElementById('today-food-text').innerText = current.food;
@@ -206,7 +177,7 @@
             weeks.forEach(w => {
                 const items = tastings.filter(t => t.week === w);
                 const done = items.every(t => t.status === 'done');
-                const weekHtml = `
+                container.innerHTML += `
                     <div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm">
                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleRepoItem(${w})">
                             <div onclick="event.stopPropagation(); activeWeek=${w}; activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');">
@@ -222,22 +193,44 @@
                                         <div class="text-xl">${idx === 6 ? "🥗" : (it.emoji || "🥣")}</div>
                                         <span class="text-[9px] font-bold mt-1 text-gray-600">${it.food}</span>
                                         ${it.status === 'done' ? '<i class="fas fa-check text-[8px] text-green-400 mt-1"></i>' : ''}
-                                    </div>
-                                `).join('')}
+                                    </div>`).join('')}
                             </div>
                             <button onclick="openModalForEdit(${w})" class="w-full mt-3 py-2 text-xs text-sky-400 border-t border-gray-50 font-bold italic">עריכת שבוע ${w} <i class="fas fa-edit ml-1"></i></button>
                         </div>
                     </div>`;
-                container.innerHTML += weekHtml;
             });
         }
 
-        // שאר הפונקציות (Medical, Modal וכו') נשארו ללא שינוי
+        function renderMed() {
+            const list = document.getElementById('med-list');
+            list.innerHTML = medical.map((m, i) => `
+                <div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic text-base">
+                    <div>
+                        <div class="font-bold text-gray-800">${m.name}</div>
+                        <div class="text-xs text-gray-500">${m.date} | ${m.time}</div>
+                        ${m.loc ? `<div class="text-[10px] text-sky-400 mt-1"><i class="fas fa-map-marker-alt"></i> ${m.loc}</div>` : ''}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        ${m.loc ? `<a href="waze://?q=${encodeURIComponent(m.loc)}&navigate=yes" class="text-sky-400 p-2"><i class="fas fa-car text-xl"></i></a>` : ''}
+                        <button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200 p-2"><i class="fas fa-trash-alt text-lg"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function addMed() {
+            const name = document.getElementById('med-name').value;
+            const loc = document.getElementById('med-loc').value;
+            const date = document.getElementById('med-date').value;
+            const time = document.getElementById('med-time').value;
+            if(!name || !date) return;
+            medical.push({ name, loc, date, time }); uploadData();
+            document.getElementById('med-name').value = ''; document.getElementById('med-loc').value = '';
+        }
+
         function toggleModal(show) { document.getElementById('week-modal').classList.toggle('active', show); }
         function openModalForNew() { editingWeek = null; toggleModal(true); }
         function openModalForEdit(w) { 
-            editingWeek = w; 
-            const items = tastings.filter(t => t.week === w);
+            editingWeek = w; const items = tastings.filter(t => t.week === w);
             if(items.length > 0) {
                 document.getElementById('modal-dates').value = items[0].date || '';
                 document.getElementById('modal-emoji').value = items[0].emoji || '';
@@ -246,38 +239,15 @@
             }
         }
         function saveWeek() {
-            const dates = document.getElementById('modal-dates').value;
-            const emoji = document.getElementById('modal-emoji').value;
-            const foods = document.getElementById('modal-foods').value;
-            const foodArr = foods.split(',').map(s => s.trim());
+            const dates = document.getElementById('modal-dates').value, emoji = document.getElementById('modal-emoji').value, foods = document.getElementById('modal-foods').value, foodArr = foods.split(',').map(s => s.trim());
             if (editingWeek) {
-                let dayC = 0;
-                tastings.forEach(t => { if(t.week === editingWeek) { t.date = dates; t.emoji = emoji; t.food = foodArr[dayC++] || foodArr[0]; } });
+                let dayC = 0; tastings.forEach(t => { if(t.week === editingWeek) { t.date = dates; t.emoji = emoji; t.food = foodArr[dayC++] || foodArr[0]; } });
             } else {
-                const nextW = tastings.length > 0 ? Math.max(...tastings.map(t => t.week)) + 1 : 1;
-                const lastD = tastings.length > 0 ? Math.max(...tastings.map(t => t.day)) : 0;
-                for(let i=0; i<7; i++) {
-                    tastings.push({ id: Date.now() + i, week: nextW, day: lastD + 1 + i, food: foodArr[i] || foodArr[0], emoji: i === 6 ? "🥗" : emoji, status: 'pending', date: dates });
-                }
+                const nextW = tastings.length > 0 ? Math.max(...tastings.map(t => t.week)) + 1 : 1, lastD = tastings.length > 0 ? Math.max(...tastings.map(t => t.day)) : 0;
+                for(let i=0; i<7; i++) { tastings.push({ id: Date.now() + i, week: nextW, day: lastD + 1 + i, food: foodArr[i] || foodArr[0], emoji: i === 6 ? "🥗" : emoji, status: 'pending', date: dates }); }
                 activeWeek = nextW; activeIdx = tastings.findIndex(t => t.week === activeWeek);
             }
             uploadData(); toggleModal(false);
-        }
-        function renderMed() {
-            const list = document.getElementById('med-list');
-            list.innerHTML = medical.map((m, i) => `
-                <div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic text-base">
-                    <div><div class="font-bold text-gray-800">${m.name}</div><div class="text-xs text-gray-500">${m.date} | ${m.time}</div></div>
-                    <button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200 p-2"><i class="fas fa-trash-alt"></i></button>
-                </div>`).join('');
-        }
-        function addMed() {
-            const name = document.getElementById('med-name').value;
-            const date = document.getElementById('med-date').value;
-            const time = document.getElementById('med-time').value;
-            if(!name || !date) return;
-            medical.push({ name, date, time }); uploadData();
-            document.getElementById('med-name').value = '';
         }
     </script>
 </body>
