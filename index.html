@@ -142,7 +142,7 @@
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
                 const displayEmoji = (index === 6) ? "🥗" : (item.emoji || "🥣");
                 carousel.innerHTML += `
-                    <div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105 shadow-md' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}">
+                    <div id="card-${tastings.indexOf(item)}" onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105 shadow-md' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}">
                         <span class="text-[10px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span>
                         <div class="text-4xl mb-2">${displayEmoji}</div>
                         <span class="text-xs font-bold text-gray-700">${item.food}</span>
@@ -159,7 +159,20 @@
 
         function markDayDone() {
             if(!tastings[activeIdx]) return;
-            tastings[activeIdx].status = (tastings[activeIdx].status === 'done' ? 'pending' : 'done');
+            const currentItem = tastings[activeIdx];
+            const newStatus = currentItem.status === 'done' ? 'pending' : 'done';
+            currentItem.status = newStatus;
+
+            // מעבר אוטומטי ליום הבא אם סומן כבוצע
+            if (newStatus === 'done') {
+                const weekItems = tastings.filter(t => t.week === activeWeek);
+                const currentIdxInWeek = weekItems.indexOf(currentItem);
+                if (currentIdxInWeek < weekItems.length - 1) {
+                    const nextItem = weekItems[currentIdxInWeek + 1];
+                    activeIdx = tastings.indexOf(nextItem);
+                }
+            }
+
             uploadData();
         }
 
