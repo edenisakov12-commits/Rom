@@ -27,6 +27,9 @@
         .repo-item.open .repo-item-content { max-height: 250px; margin-top: 15px; }
         .repo-item.open .chevron { transform: rotate(180deg); }
         .chevron { transition: transform 0.3s; }
+
+        @keyframes pulse-gold { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(250, 204, 21, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } }
+        .btn-next-week { animation: pulse-gold 2s infinite; border: 2px solid #fbbf24 !important; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
     </style>
 </head>
 <body class="pb-24">
@@ -138,6 +141,9 @@
             carousel.innerHTML = '';
             const weekDays = tastings.filter(t => t.week === activeWeek);
             if(weekDays.length === 0) return;
+
+            let allDone = weekDays.length > 0 && weekDays.every(t => t.status === 'done');
+
             weekDays.forEach((item, index) => {
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
                 const displayEmoji = (index === 6) ? "🥗" : (item.emoji || "🥣");
@@ -149,6 +155,16 @@
                         ${item.status === 'done' ? '<div class="mt-2 text-sky-400"><i class="fas fa-check-circle text-sm"></i></div>' : ''}
                     </div>`;
             });
+
+            // כפתור שבוע הבא חגיגי אם הכל הושלם
+            if (allDone) {
+                carousel.innerHTML += `
+                    <div onclick="openModalForNew()" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all btn-next-week cursor-pointer">
+                        <div class="text-3xl mb-2">✨</div>
+                        <span class="text-xs font-bold text-amber-600 text-center px-2">להתחלת השבוע הבא</span>
+                    </div>`;
+            }
+
             const current = tastings[activeIdx];
             if (current) {
                 document.getElementById('today-food-text').innerText = current.food;
@@ -162,8 +178,6 @@
             const currentItem = tastings[activeIdx];
             const newStatus = currentItem.status === 'done' ? 'pending' : 'done';
             currentItem.status = newStatus;
-
-            // מעבר אוטומטי ליום הבא אם סומן כבוצע
             if (newStatus === 'done') {
                 const weekItems = tastings.filter(t => t.week === activeWeek);
                 const currentIdxInWeek = weekItems.indexOf(currentItem);
@@ -172,7 +186,6 @@
                     activeIdx = tastings.indexOf(nextItem);
                 }
             }
-
             uploadData();
         }
 
@@ -241,10 +254,18 @@
         }
 
         function toggleModal(show) { document.getElementById('week-modal').classList.toggle('active', show); }
-        function openModalForNew() { editingWeek = null; toggleModal(true); }
+        function openModalForNew() { 
+            editingWeek = null; 
+            document.getElementById('modal-title').innerText = "שבוע חדש ✨";
+            document.getElementById('modal-dates').value = '';
+            document.getElementById('modal-emoji').value = '';
+            document.getElementById('modal-foods').value = "בטטה, בטטה, בטטה, גזר, גזר, גזר, שילוב";
+            toggleModal(true); 
+        }
         function openModalForEdit(w) { 
             editingWeek = w; const items = tastings.filter(t => t.week === w);
             if(items.length > 0) {
+                document.getElementById('modal-title').innerText = `עריכת שבוע ${w}`;
                 document.getElementById('modal-dates').value = items[0].date || '';
                 document.getElementById('modal-emoji').value = items[0].emoji || '';
                 document.getElementById('modal-foods').value = items.map(i => i.food).join(', ');
