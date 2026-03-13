@@ -150,15 +150,35 @@
     </div>
 
     <div id="danger-modal" class="modal" onclick="toggleModal('danger-modal', false)">
-        <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right" onclick="event.stopPropagation()">
-            <h3 class="text-2xl font-bold text-red-500 mb-4">אסור לשימוש! 🚫</h3>
-            <ul class="space-y-3 text-gray-700 text-base">
-                <li>• <b>דבש:</b> אסור עד גיל שנה.</li>
-                <li>• <b>חלב ניגר:</b> אסור עד גיל שנה.</li>
-                <li>• <b>מלח וסוכר:</b> מומלץ להימנע בשנה הראשונה.</li>
-                <li>• <b>פיצוחים:</b> סכנת חנק חמורה.</li>
-            </ul>
-            <button onclick="toggleModal('danger-modal', false)" class="w-full bg-gray-800 text-white p-3 rounded-2xl mt-4">הבנתי</button>
+        <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right overflow-y-auto max-h-[80vh]" onclick="event.stopPropagation()">
+            <h3 class="text-2xl font-bold text-red-500 mb-4">אסור לשימוש (עד גיל שנה)! 🚫</h3>
+            <div class="space-y-4 text-gray-700 text-base">
+                <div class="border-b pb-2">
+                    <p class="font-bold text-red-600">סכנת הרעלה/זיהום:</p>
+                    <ul class="mr-4">
+                        <li>• <b>דבש:</b> סכנת בוטוליזם חמורה.</li>
+                        <li>• <b>חלב ניגר:</b> עומס על הכליות.</li>
+                        <li>• <b>ביצים/בשר/דג נא:</b> סכנת סלמונלה.</li>
+                    </ul>
+                </div>
+                <div class="border-b pb-2">
+                    <p class="font-bold text-red-600">סכנת חנק (עד גיל 5):</p>
+                    <ul class="mr-4">
+                        <li>• <b>פיצוחים:</b> מכל סוג שהוא.</li>
+                        <li>• <b>ענבים/זיתים:</b> ללא חיתוך לאורך.</li>
+                        <li>• <b>סוכריות קשות:</b> ופופקורן.</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-red-600">הנחיות נוספות:</p>
+                    <ul class="mr-4">
+                        <li>• <b>מלח וסוכר:</b> להימנע לחלוטין.</li>
+                        <li>• <b>מיצים:</b> עדיף מים או פרי שלם.</li>
+                        <li>• <b>דגים עתירי כספית:</b> כמו טונה אדומה.</li>
+                    </ul>
+                </div>
+            </div>
+            <button onclick="toggleModal('danger-modal', false)" class="w-full bg-gray-800 text-white p-3 rounded-2xl mt-4">הבנתי, אזהר</button>
         </div>
     </div>
 
@@ -179,25 +199,53 @@
         const db = firebase.database();
         let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [];
 
+        // מסד נתונים מורחב של ערכים תזונתיים
         const nutriDB = {
+            // ירקות
             "בטטה": { info: "ויטמין A (בטא קרוטן) לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
             "גזר": { info: "עשיר בויטמין A ונוגדי חמצון. מצוין לעיכול.", vit: ["A", "K"], mineral: "סיבים" },
             "קישוא": { info: "קל לעיכול, עשיר במגנזיום וויטמין C.", vit: ["C", "B6"], mineral: "מגנזיום" },
+            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
+            "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
+            "דלעת": { info: "ויטמין A לראייה ונוגדי חמצון.", vit: ["A", "C"], mineral: "אשלגן" },
+            "תפוח אדמה": { info: "פחמימה מורכבת המספקת אנרגיה.", vit: ["C", "B6"], mineral: "אשלגן" },
+            "כרובית": { info: "ויטמין C וסיבים תזונתיים.", vit: ["C", "K"], mineral: "סיבים" },
+            "סלק": { info: "מקור טוב לחומצה פולית ומנגן.", vit: ["B9", "C"], mineral: "ברזל" },
+            "תרד": { info: "עשיר בברזל וויטמינים, חשוב לדם.", vit: ["A", "C", "K"], mineral: "ברזל" },
+            "גמבה": { info: "שיא של ויטמין C, מחזק חיסון.", vit: ["C", "B6"], mineral: "נוגדי חמצון" },
+            
+            // פירות
             "תפוח": { info: "סיבים (פקטין), ויטמינים מקבוצת B.", vit: ["B1", "B2", "C"], mineral: "סיבים" },
-            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9 (חומצה פולית)"], mineral: "ברזל, חלבון" },
+            "בננה": { info: "אנרגיה זמינה, אשלגן וויטמין B6.", vit: ["B6", "C"], mineral: "אשלגן" },
+            "אבוקדו": { info: "שומנים בריאים (חומצה אולאית) למוח.", vit: ["E", "K", "B5"], mineral: "שומן בריא" },
+            "אגס": { info: "עדין מאוד למערכת העיכול, עשיר בסיבים.", vit: ["C", "K"], mineral: "נחושת" },
+            "מלון": { info: "מרווה מאוד, עשיר בויטמין A ו-C.", vit: ["A", "C"], mineral: "אשלגן" },
+            "מנגו": { info: "פצצת ויטמין A ונוגדי חמצון.", vit: ["A", "C", "E"], mineral: "סיבים" },
+            "תפוז": { info: "ויטמין C לספיגת ברזל מקסימלית.", vit: ["C", "B9"], mineral: "סידן" },
+            
+            // חלבון (בשר, דגים, ביצים)
             "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל, חלבון" },
             "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
-            "אבוקדו": { info: "שומנים בריאים (חומצה אולאית) למוח.", vit: ["E", "K", "B5"], mineral: "שומן בריא" },
-            "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
-            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
-            "בננה": { info: "אנרגיה זמינה, אשלגן וויטמין B6.", vit: ["B6", "C"], mineral: "אשלגן" }
+            "סלמון": { info: "חומצות שומן אומגה 3 להתפתחות המוח.", vit: ["D", "B12"], mineral: "אומגה 3" },
+            "ביצה": { info: "חלבון מושלם וכולין לבריאות המוח.", vit: ["A", "D", "B12"], mineral: "חלבון" },
+            "בקר": { info: "מקור הברזל העשיר ביותר, קריטי לגדילה.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
+            "לברק": { info: "דג קל לעיכול, חלבון נקי.", vit: ["B6", "B12"], mineral: "יוד" },
+            
+            // קטניות ודגנים
+            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9"], mineral: "ברזל, חלבון" },
+            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1", "B6"], mineral: "סידן, ברזל" },
+            "קינואה": { info: "חלבון מלא המכיל את כל חומצות האמינו.", vit: ["B2", "E"], mineral: "מגנזיום" },
+            "אורז": { info: "קל מאוד לעיכול ואנרגטי.", vit: ["B1", "B3"], mineral: "סיבים" },
+            "חומוס": { info: "עשיר בחלבון צמחי וסיבים.", vit: ["B9", "B6"], mineral: "ברזל, מגנזיום" }
         };
 
         const baseIdeas = [
             { id: 1, title: "המרק הכתום הקלאסי", ingredients: ["בטטה", "גזר", "עדשים"], desc: "פצצת ויטמינים לחיזוק החיסון" },
             { id: 2, title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
             { id: 3, title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
-            { id: 4, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" }
+            { id: 4, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" },
+            { id: 5, title: "דג ופחמימה חכמה", ingredients: ["סלמון", "קינואה", "קישוא"], desc: "אומגה 3 להתפתחות מוחית" },
+            { id: 6, title: "מנה אדומה ומחזקת", ingredients: ["בקר", "סלק", "תפוח אדמה"], desc: "ברזל גבוה וטעם מתקתק" }
         ];
 
         db.ref('rom_sync').on('value', (s) => {
