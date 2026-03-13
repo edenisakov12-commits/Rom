@@ -199,6 +199,7 @@
         const db = firebase.database();
         let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [];
 
+        // מסד נתונים מורחב של ערכים תזונתיים
         const nutriDB = {
             "בטטה": { info: "ויטמין A לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
             "גזר": { info: "עשיר בויטמין A ונוגדי חמצון.", vit: ["A", "K"], mineral: "סיבים" },
@@ -314,10 +315,7 @@
             if(babyDOB) {
                 const dob = new Date(babyDOB); const now = new Date();
                 let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
-                // תיקון: אם היום בחודש הנוכחי קטן מהיום בחודש הלידה, עדיין לא עבר חודש מלא
-                if (now.getDate() < dob.getDate()) {
-                    months--;
-                }
+                if (now.getDate() < dob.getDate()) months--;
                 html += `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
             }
 
