@@ -33,6 +33,8 @@
         #week-carousel { padding: 15px 10px !important; }
         .nutrition-card { transition: all 0.3s ease; cursor: pointer; }
         .nutrition-card:active { scale: 0.98; }
+        /* עיצוב חלון העדכונים */
+        .updates-banner { background: linear-gradient(to left, #f0f9ff, #ffffff); border: 1px solid #e0f2fe; border-radius: 20px; padding: 12px 20px; margin: 0 24px 20px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body class="pb-24">
@@ -41,7 +43,17 @@
 
     <div class="pt-6 pb-2 text-center">
         <h1 class="text-5xl font-light tracking-widest text-gray-800" style="font-family: serif;">Rom</h1>
-        <div class="h-1 w-8 bg-sky-200 mx-auto mt-2 rounded-full"></div>
+        <div class="h-1 w-8 bg-sky-200 mx-auto mt-2 rounded-full mb-6"></div>
+        
+        <div id="updates-container" class="updates-banner">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-bell text-sky-400 text-sm"></i>
+                <span id="update-text" class="text-gray-700 font-semibold text-sm italic">אין עדכונים חדשים</span>
+            </div>
+            <button onclick="editUpdate()" class="text-sky-300 hover:text-sky-500 transition-colors">
+                <i class="fas fa-pen text-xs"></i>
+            </button>
+        </div>
     </div>
 
     <main class="px-6">
@@ -197,11 +209,9 @@
         const firebaseConfig = { apiKey: k1 + k2, authDomain: "romtastings.firebaseapp.com", databaseURL: "https://romtastings-default-rtdb.europe-west1.firebasedatabase.app/", projectId: "romtastings" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [];
+        let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [], dailyUpdate = "";
 
-        // מסד נתונים מורחב מאוד של ערכים תזונתיים
         const nutriDB = {
-            // ירקות (10+ נוספים)
             "בטטה": { info: "ויטמין A לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
             "גזר": { info: "עשיר בויטמין A ונוגדי חמצון.", vit: ["A", "K"], mineral: "סיבים" },
             "קישוא": { info: "קל לעיכול, עשיר במגנזיום וויטמין C.", vit: ["C", "B6"], mineral: "מגנזיום" },
@@ -219,8 +229,6 @@
             "שום": { info: "מחזק את המערכת החיסונית (בכמויות קטנות).", vit: ["C", "B6"], mineral: "סלניום" },
             "גמבה": { info: "פצצת ויטמין C לחיזוק הגוף.", vit: ["C", "A", "B6"], mineral: "נוגדי חמצון" },
             "תרד": { info: "עשיר בברזל וויטמינים (לתת במתינות).", vit: ["A", "C", "K"], mineral: "ברזל, סידן" },
-
-            // פירות (10+ נוספים)
             "אבוקדו": { info: "שומנים בריאים להתפתחות המוח.", vit: ["E", "K"], mineral: "שומן בריא" },
             "בננה": { info: "אנרגיה זמינה ואשלגן.", vit: ["B6", "C"], mineral: "אשלגן" },
             "תפוח": { info: "סיבים תזונתיים וויטמין C.", vit: ["C"], mineral: "סיבים" },
@@ -236,8 +244,6 @@
             "משמש": { info: "עשיר בבטא-קרוטן וברזל.", vit: ["A", "C"], mineral: "ברזל" },
             "ענבים": { info: "אנרגיה ונוגדי חמצון (רק חתוך לאורך!).", vit: ["C", "K"], mineral: "אשלגן" },
             "תות שדה": { info: "עשיר בויטמין C ונוגדי חמצון.", vit: ["C", "B9"], mineral: "מנגן" },
-
-            // בשר ודגים (10+ נוספים)
             "בשר טחון": { info: "מקור ברזל איכותי וקריטי לגדילה.", vit: ["B12"], mineral: "ברזל, אבץ" },
             "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל" },
             "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12"], mineral: "ברזל" },
@@ -270,13 +276,24 @@
                 medical = d.medical || []; 
                 babyDOB = d.babyDOB || ""; 
                 customIdeas = d.customIdeas || [];
+                dailyUpdate = d.dailyUpdate || "6 טיפות ברזל"; // ברירת מחדל
+                document.getElementById('update-text').innerText = dailyUpdate;
                 renderHome(); renderRepo(); renderMed(); updateIdeas(); 
             }
             document.getElementById('status-badge').innerText = "● מסונכרן";
             document.getElementById('status-badge').className = "sync-badge bg-green-50 text-green-500";
         });
 
-        function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB, customIdeas }); }
+        function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB, customIdeas, dailyUpdate }); }
+
+        function editUpdate() {
+            const newUpdate = prompt("מה תרצו לכתוב בחלון העדכונים?", dailyUpdate);
+            if (newUpdate !== null) {
+                dailyUpdate = newUpdate;
+                document.getElementById('update-text').innerText = dailyUpdate;
+                uploadData();
+            }
+        }
 
         function showNutri(title, ingredients) {
             document.getElementById('nutri-title').innerText = title;
