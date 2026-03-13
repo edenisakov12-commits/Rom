@@ -30,8 +30,9 @@
         .btn-next-week { animation: pulse-gold 2s infinite; border: 2px solid #fbbf24 !important; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
         .nav-arrow { cursor: pointer; padding: 5px 10px; }
         .nav-arrow.disabled { opacity: 0.2; }
-        /* תיקון החיתוך בקרוסלה */
         #week-carousel { padding: 15px 10px !important; }
+        .nutrition-card { transition: all 0.3s ease; cursor: pointer; }
+        .nutrition-card:active { scale: 0.98; }
     </style>
 </head>
 <body class="pb-24">
@@ -71,12 +72,20 @@
         <section id="sec-ideas" class="hidden space-y-6">
             <div class="flex justify-between items-center px-2">
                 <div class="w-12"></div>
-                <h2 class="text-2xl font-bold text-gray-800 italic">רעיונות וטעימות</h2>
+                <h2 class="text-2xl font-bold text-gray-800 italic">רעיונות וערכים</h2>
                 <button onclick="toggleModal('danger-modal', true)" class="w-12 h-12 bg-red-50 text-red-500 shadow-md rounded-full flex items-center justify-center text-xl border border-red-100 font-bold">!</button>
             </div>
-            <div id="ideas-content" class="space-y-4">
-                <div class="text-center p-10 text-gray-400 italic">טוען נתונים...</div>
+            
+            <div class="glass-card p-4 shadow-sm border-sky-100">
+                <h4 class="text-sm font-bold text-sky-500 mb-2">מחשבון שילובים אישי</h4>
+                <div class="flex gap-2">
+                    <input id="custom-mix-input" type="text" placeholder="למשל: עוף וגזר" class="flex-1 bg-white border rounded-xl p-2 text-sm">
+                    <button onclick="calculateCustomNutrition()" class="bg-sky-400 text-white px-4 rounded-xl text-sm font-bold">בדוק</button>
+                </div>
+                <div id="custom-result" class="mt-2 text-[10px] text-gray-500 hidden bg-sky-50 p-2 rounded-lg"></div>
             </div>
+
+            <div id="ideas-content" class="space-y-4"></div>
         </section>
 
         <section id="sec-repo" class="hidden space-y-4">
@@ -99,6 +108,14 @@
             </div>
         </section>
     </main>
+
+    <div id="nutri-modal" class="modal">
+        <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right">
+            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500"></h3>
+            <div id="nutri-body" class="text-sm space-y-2 text-gray-600"></div>
+            <button onclick="toggleModal('nutri-modal', false)" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold">סגור</button>
+        </div>
+    </div>
 
     <div id="week-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-center">
@@ -149,6 +166,26 @@
         const db = firebase.database();
         let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null;
 
+        const nutriDB = {
+            "בטטה": "עשירה בויטמין A (בטא קרוטן) לחיזוק הראייה ומערכת החיסון.",
+            "גזר": "ויטמין A ואשלגן. מצוין לעיכול ולעור.",
+            "קישוא": "קל מאוד לעיכול, עשיר במים ובויטמין C.",
+            "תפוח": "סיבים תזונתיים (פקטין) וויטמינים מקבוצת B.",
+            "עדשים": "מקור מעולה לברזל צמחי וחלבון לבניית השרירים.",
+            "עוף": "חלבון איכותי וברזל הנספג בקלות. חיוני למניעת אנמיה.",
+            "הודו": "עשיר מאוד בברזל ובויטמין B12.",
+            "אבוקדו": "שומנים בריאים (חומצה אולאית) להתפתחות המוח.",
+            "אפונה": "חלבון, סיבים וויטמין K לבניית העצמות.",
+            "ברוקולי": "סידן, ויטמין C וחומצה פולית."
+        };
+
+        const predefinedIdeas = [
+            { title: "המרק הכתום הקלאסי", ingredients: ["בטטה", "גזר", "עדשים"], desc: "פצצת ויטמינים לחיזוק החיסון" },
+            { title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
+            { title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
+            { title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" }
+        ];
+
         db.ref('rom_sync').on('value', (s) => {
             const d = s.val(); if (d) { tastings = d.tastings || []; medical = d.medical || []; babyDOB = d.babyDOB || ""; renderHome(); renderRepo(); renderMed(); updateIdeas(); }
             document.getElementById('status-badge').innerText = "● מסונכרן";
@@ -156,6 +193,56 @@
         });
 
         function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB }); }
+
+        function showNutri(title, ingredients) {
+            document.getElementById('nutri-title').innerText = title;
+            let bodyHtml = "<b>מה זה נותן לרום?</b><br><ul class='list-disc pr-4 mt-2'>";
+            ingredients.forEach(ing => {
+                const info = nutriDB[ing] || "ערכים תזונתיים חיוניים להתפתחות.";
+                bodyHtml += `<li class='mb-2'><b>${ing}:</b> ${info}</li>`;
+            });
+            bodyHtml += "</ul>";
+            document.getElementById('nutri-body').innerHTML = bodyHtml;
+            toggleModal('nutri-modal', true);
+        }
+
+        function calculateCustomNutrition() {
+            const input = document.getElementById('custom-mix-input').value;
+            const resDiv = document.getElementById('custom-result');
+            if(!input) return;
+            let found = [];
+            Object.keys(nutriDB).forEach(key => { if(input.includes(key)) found.push(key); });
+            if(found.length > 0) {
+                resDiv.innerHTML = `<b>נמצאו רכיבים:</b> ${found.join(', ')}<br>לחץ לצפייה בערכים.`;
+                resDiv.classList.remove('hidden');
+                resDiv.onclick = () => showNutri(input, found);
+            } else {
+                resDiv.innerHTML = "לא נמצאו רכיבים מוכרים במערכת, אך השילוב נשמע מעניין!";
+                resDiv.classList.remove('hidden');
+            }
+        }
+
+        function updateIdeas() {
+            if(!babyDOB) return;
+            const dob = new Date(babyDOB); const now = new Date();
+            let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+            if (now.getDate() < dob.getDate()) months--;
+            
+            const container = document.getElementById('ideas-content');
+            let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
+            
+            predefinedIdeas.forEach(idea => {
+                html += `
+                <div class="glass-card p-5 nutrition-card border border-white hover:border-sky-200" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
+                    <h4 class="font-bold text-lg text-gray-800">${idea.title} 🥗</h4>
+                    <p class="text-xs text-gray-500 mb-2">${idea.desc}</p>
+                    <div class="flex gap-2">
+                        ${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-1 rounded-lg">#${ing}</span>`).join('')}
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
 
         function nav(s) {
             document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
@@ -169,23 +256,6 @@
         function saveBabyInfo() { 
             babyDOB = document.getElementById('baby-dob').value; 
             uploadData(); toggleModal('baby-modal', false); 
-        }
-
-        function updateIdeas() {
-            if(!babyDOB) return;
-            const dob = new Date(babyDOB);
-            const now = new Date();
-            let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
-            if (now.getDate() < dob.getDate()) months--;
-            
-            const container = document.getElementById('ideas-content');
-            let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
-            if(months < 6) {
-                html += `<div class="glass-card p-5 space-y-3"><h4 class="font-bold text-lg">טעימות ראשונות 🥣</h4><p class="text-sm">מרקם חלק לגמרי. להתחיל בירקות ניטרליים.</p><div class="grid grid-cols-2 gap-2 text-xs font-bold"><div class="bg-white p-3 rounded-2xl border">בטטה מעוכה</div><div class="bg-white p-3 rounded-2xl border">קישוא קלוף</div><div class="bg-white p-3 rounded-2xl border">גזר מבושל</div><div class="bg-white p-3 rounded-2xl border">תפוח מאודה</div></div></div>`;
-            } else {
-                html += `<div class="glass-card p-5 space-y-3"><h4 class="font-bold text-lg">שילובים (6+) 🥗</h4><div class="space-y-2"><div class="bg-white p-3 rounded-2xl border text-sm"><b>כתום:</b> בטטה + גזר + עדשים</div><div class="bg-white p-3 rounded-2xl border text-sm"><b>ירוק:</b> אפונה + קישוא + שקדיה</div></div></div>`;
-            }
-            container.innerHTML = html;
         }
 
         function changeWeek(dir) {
