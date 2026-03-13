@@ -31,9 +31,8 @@
         .nav-arrow { cursor: pointer; padding: 5px 10px; }
         .nav-arrow.disabled { opacity: 0.2; }
         #week-carousel { padding: 15px 10px !important; }
-        /* הוספת אפקט לחיצה לרעיונות */
-        .idea-card { transition: transform 0.2s, background-color 0.2s; cursor: pointer; }
-        .idea-card:active { transform: scale(0.98); background-color: #f1f5f9; }
+        .nutrition-card { transition: all 0.3s ease; cursor: pointer; }
+        .nutrition-card:active { scale: 0.98; }
     </style>
 </head>
 <body class="pb-24">
@@ -113,7 +112,7 @@
 
     <div id="nutri-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right overflow-y-auto max-h-[80vh]">
-            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500 border-b pb-2">ניתוח רכיבים</h3>
+            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500 border-b pb-2"></h3>
             <div id="nutri-body" class="text-sm space-y-4 text-gray-600"></div>
             <button onclick="toggleModal('nutri-modal', false)" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold sticky bottom-0">סגור</button>
         </div>
@@ -122,10 +121,10 @@
     <div id="add-idea-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right">
             <h3 class="text-2xl font-bold text-gray-800">הוספת שילוב חדש 🥗</h3>
-            <input id="new-idea-name" type="text" placeholder="שם המנה" class="w-full border rounded-2xl p-3 text-right text-base">
+            <input id="new-idea-name" type="text" placeholder="שם המנה (למשל: המרק של רום)" class="w-full border rounded-2xl p-3 text-right text-base">
             <p id="new-idea-items" class="text-xs text-sky-400 font-bold"></p>
             <div class="flex gap-2">
-                <button onclick="saveNewIdea()" class="flex-1 bg-green-400 text-white p-3 rounded-2xl font-bold">שמור</button>
+                <button onclick="saveNewIdea()" class="flex-1 bg-green-400 text-white p-3 rounded-2xl font-bold">שמור לרשימה</button>
                 <button onclick="toggleModal('add-idea-modal', false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold">ביטול</button>
             </div>
         </div>
@@ -145,7 +144,7 @@
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-center">
             <h3 class="text-2xl font-bold text-gray-800">פרופיל רום 👶</h3>
             <input id="baby-dob" type="date" class="w-full border rounded-2xl p-3 text-center text-base">
-            <button onclick="saveBabyInfo()" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold">עדכן</button>
+            <button onclick="saveBabyInfo()" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold">עדכן תאריך לידה</button>
             <button onclick="toggleModal('baby-modal', false)" class="w-full text-gray-400 text-sm">סגור</button>
         </div>
     </div>
@@ -156,9 +155,10 @@
             <ul class="space-y-3 text-gray-700 text-base">
                 <li>• <b>דבש:</b> אסור עד גיל שנה.</li>
                 <li>• <b>חלב ניגר:</b> אסור עד גיל שנה.</li>
-                <li>• <b>מלח וסוכר:</b> מומלץ להימנע.</li>
-                <li>• <b>פיצוחים:</b> סכנת חנק.</li>
+                <li>• <b>מלח וסוכר:</b> מומלץ להימנע בשנה הראשונה.</li>
+                <li>• <b>פיצוחים:</b> סכנת חנק חמורה.</li>
             </ul>
+            <button onclick="toggleModal('danger-modal', false)" class="w-full bg-gray-800 text-white p-3 rounded-2xl mt-4">הבנתי</button>
         </div>
     </div>
 
@@ -179,30 +179,27 @@
         const db = firebase.database();
         let tastings = [], medical = [], babyDOB = "", activeWeek = 1, activeIdx = 0, editingWeek = null, customIdeas = [];
 
-        // מאגר רכיבים מורחב מאוד
         const nutriDB = {
-            "בטטה": { info: "עשירה בויטמין A (בטא-קרוטן) לראייה וחיזוק המערכת החיסונית.", vit: ["A", "C", "B6"], mineral: "אשלגן" },
-            "גזר": { info: "מקור מצוין לויטמין A, עוזר לבריאות העור והעיניים.", vit: ["A", "K", "C"], mineral: "סיבים" },
-            "קישוא": { info: "קל מאוד לעיכול, מכיל נוגדי חמצון חשובים.", vit: ["C", "B6", "K"], mineral: "מגנזיום" },
-            "תפוח": { info: "מכיל פקטין (סיב תזונתי) המסייע לעיכול תקין.", vit: ["C", "B1", "B2"], mineral: "בורון" },
-            "עדשים": { info: "מקור חלבון צמחי וברזל מעולה לגדילה.", vit: ["B9", "B1", "B6"], mineral: "ברזל, אבץ" },
-            "עוף": { info: "חלבון איכותי החיוני לבניית שרירים ורקמות.", vit: ["B12", "B3", "B6"], mineral: "ברזל, אבץ" },
-            "הודו": { info: "עשיר מאוד בברזל (יותר מעוף) ובויטמינים מקבוצת B.", vit: ["B12", "B6", "B3"], mineral: "ברזל, אבץ, סלניום" },
-            "אבוקדו": { info: "מכיל חומצות שומן חד-לא-רוויות הבריאות ללב ולמוח.", vit: ["E", "K", "B5", "B6"], mineral: "אשלגן" },
-            "אפונה": { info: "עשירה בחלבון, סיבים וויטמינים מקבוצת B.", vit: ["K", "C", "B1"], mineral: "מנגן, ברזל" },
-            "ברוקולי": { info: "מזון-על המכיל סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A", "B9"], mineral: "סידן, אשלגן" },
-            "בננה": { info: "מקור אנרגיה זמין ומהיר, עשירה באשלגן.", vit: ["C", "B6"], mineral: "אשלגן, מגנזיום" },
-            "דלעת": { info: "מחזקת את מערכת החיסון ועשירה בנוגדי חמצון.", vit: ["A", "C", "E"], mineral: "אשלגן" },
-            "תפוח אדמה": { info: "פחמימה מורכבת הנותנת תחושת שובע ואנרגיה.", vit: ["C", "B6"], mineral: "אשלגן" },
-            "סלק": { info: "מקור טוב לברזל וחומצה פולית, עוזר לזרימת דם.", vit: ["B9", "C"], mineral: "מנגן, אשלגן" },
-            "כרובית": { info: "עשירה בויטמינים וסיבים, מסייעת בניקוי רעלים.", vit: ["C", "K", "B6"], mineral: "חומצה פולית" },
-            "אגס": { info: "פרי עדין ומתוק, מסייע במקרים של עצירות.", vit: ["C", "K"], mineral: "נחושת" },
-            "ביצה": { info: "חלבון מלא המכיל את כל חומצות האמינו החיוניות.", vit: ["A", "D", "B12", "B2"], mineral: "סלניום" },
-            "סלמון": { info: "עשיר באומגה 3 החיונית להתפתחות המוח והראייה.", vit: ["D", "B12", "B3"], mineral: "סלניום, זרחן" },
-            "טחינה": { info: "מקור מעולה לסידן וברזל מהצומח.", vit: ["B1", "B2", "B3", "B5"], mineral: "סידן, ברזל, מגנזיום" },
-            "קינואה": { info: "דגן עשיר בחלבון מלא וסיבים תזונתיים.", vit: ["B2", "E", "B6"], mineral: "מגנזיום, ברזל" },
-            "מלפפון": { info: "מכיל הרבה מים, מסייע בהידרציה ורענון.", vit: ["K", "C"], mineral: "מגנזיום" },
-            "תפוז": { info: "פצצת ויטמין C לחיזוק ההגנה הטבעית.", vit: ["C", "A", "B1"], mineral: "אשלגן, סידן" }
+            "בטטה": { info: "ויטמין A (בטא קרוטן) לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
+            "גזר": { info: "עשיר בויטמין A ונוגדי חמצון. מצוין לעיכול.", vit: ["A", "K"], mineral: "סיבים" },
+            "קישוא": { info: "קל לעיכול, עשיר במגנזיום וויטמין C.", vit: ["C", "B6"], mineral: "מגנזיום" },
+            "תפוח": { info: "סיבים (פקטין), ויטמינים מקבוצת B.", vit: ["B1", "B2", "C"], mineral: "סיבים" },
+            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9 (חומצה פולית)"], mineral: "ברזל, חלבון" },
+            "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל, חלבון" },
+            "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
+            "אבוקדו": { info: "שומנים בריאים (חומצה אולאית) למוח.", vit: ["E", "K", "B5"], mineral: "שומן בריא" },
+            "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
+            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
+            "בננה": { info: "אנרגיה זמינה, אשלגן וויטמין B6.", vit: ["B6", "C"], mineral: "אשלגן" },
+            "דלעת": { info: "ויטמין A לראייה ונוגדי חמצון.", vit: ["A", "C"], mineral: "אשלגן" },
+            "תפוח אדמה": { info: "פחמימה מורכבת המספקת אנרגיה.", vit: ["C", "B6"], mineral: "אשלגן" },
+            "כרובית": { info: "ויטמין C וסיבים תזונתיים.", vit: ["C", "K"], mineral: "סיבים" },
+            "סלק": { info: "מקור טוב לחומצה פולית ומנגן.", vit: ["B9", "C"], mineral: "ברזל" },
+            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1", "B6"], mineral: "סידן, ברזל" },
+            "קינואה": { info: "חלבון מלא המכיל את כל חומצות האמינו.", vit: ["B2", "E"], mineral: "מגנזיום, חלבון" },
+            "אורז": { info: "קל מאוד לעיכול ואנרגטי.", vit: ["B1", "B3"], mineral: "סיבים" },
+            "סלמון": { info: "חומצות שומן אומגה 3 להתפתחות המוח.", vit: ["D", "B12"], mineral: "אומגה 3" },
+            "ביצה": { info: "חלבון מושלם וכולין לבריאות המוח.", vit: ["A", "D", "B12"], mineral: "חלבון" }
         };
 
         const baseIdeas = [
@@ -210,7 +207,8 @@
             { id: 2, title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
             { id: 3, title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
             { id: 4, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" },
-            { id: 5, title: "מרק פחמימות מזין", ingredients: ["תפוח אדמה", "דלעת", "עוף"], desc: "שילוב משביע ומנחם" }
+            { id: 5, title: "מרק פחמימות מזין", ingredients: ["תפוח אדמה", "דלעת", "עוף"], desc: "שילוב משביע ומנחם" },
+            { id: 6, title: "מנת דגים ועוד", ingredients: ["סלמון", "כרובית", "אורז"], desc: "אומגה 3 להתפתחות המוח" }
         ];
 
         db.ref('rom_sync').on('value', (s) => {
@@ -227,7 +225,6 @@
 
         function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB, customIdeas }); }
 
-        // פונקציית הצגת הפופ-אפ המעמיק
         function showNutri(title, ingredients) {
             document.getElementById('nutri-title').innerText = title;
             let bodyHtml = "";
@@ -235,7 +232,7 @@
                 const data = nutriDB[ing];
                 if(data) {
                     bodyHtml += `
-                    <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-sky-400 mb-2">
+                    <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-sky-400">
                         <div class="font-bold text-gray-800 text-lg mb-1">${ing}</div>
                         <p class="text-xs text-gray-600 mb-2">${data.info}</p>
                         <div class="flex flex-wrap gap-1">
@@ -244,39 +241,11 @@
                         </div>
                     </div>`;
                 } else {
-                    bodyHtml += `<div class="p-4 bg-gray-50 rounded-2xl border-r-4 border-gray-200 mb-2"><div class="font-bold">${ing}</div><div class="text-xs text-gray-400">רכיב תזונתי חשוב.</div></div>`;
+                    bodyHtml += `<div class="p-4 bg-gray-50 rounded-2xl border-r-4 border-gray-200"><div class="font-bold">${ing}</div><div class="text-xs text-gray-400">ערכים תזונתיים חיוניים להתפתחות.</div></div>`;
                 }
             });
             document.getElementById('nutri-body').innerHTML = bodyHtml;
             toggleModal('nutri-modal', true);
-        }
-
-        // עדכון הרשימה עם אירוע לחיצה (onclick) לכל כרטיס
-        function updateIdeas() {
-            if(!babyDOB) return;
-            const dob = new Date(babyDOB), now = new Date();
-            let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
-            if (now.getDate() < dob.getDate()) months--;
-            
-            const container = document.getElementById('ideas-content');
-            let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600 mb-4">רום בן ${months} חודשים ✨</div>`;
-            
-            const allIdeas = [...baseIdeas, ...customIdeas];
-            allIdeas.forEach(idea => {
-                const isCustom = !baseIdeas.find(b => b.id === idea.id);
-                // כאן נוסף ה-onclick שפותח את הפופ-אפ
-                html += `
-                <div class="glass-card p-5 idea-card border border-white hover:border-sky-200 relative" 
-                     onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
-                    ${isCustom ? `<button onclick="event.stopPropagation(); deleteIdea(${idea.id})" class="absolute top-4 left-4 text-gray-300 p-2"><i class="fas fa-trash-alt"></i></button>` : ''}
-                    <h4 class="font-bold text-lg text-gray-800">${idea.title}</h4>
-                    <p class="text-[10px] text-gray-400 mb-2">${idea.desc}</p>
-                    <div class="flex flex-wrap gap-1">
-                        ${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-lg">#${ing}</span>`).join('')}
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
         }
 
         function calculateCustomNutrition() {
@@ -296,36 +265,90 @@
 
         function openAddIdeaModal() {
             const input = document.getElementById('custom-mix-input').value;
-            if(!input) return;
+            if(!input) return alert("הזן קודם רכיבים במחשבון");
             document.getElementById('new-idea-items').innerText = `רכיבים: ${input}`;
             toggleModal('add-idea-modal', true);
         }
 
         function saveNewIdea() {
-            const name = document.getElementById('new-idea-name').value, input = document.getElementById('custom-mix-input').value;
+            const name = document.getElementById('new-idea-name').value;
+            const input = document.getElementById('custom-mix-input').value;
             if(!name) return;
             let found = Object.keys(nutriDB).filter(key => input.includes(key));
-            customIdeas.push({ id: Date.now(), title: name, ingredients: found.length > 0 ? found : [input], desc: "שילוב אישי" });
-            uploadData(); toggleModal('add-idea-modal', false);
-            document.getElementById('new-idea-name').value = ""; document.getElementById('custom-mix-input').value = "";
+            customIdeas.push({ id: Date.now(), title: name, ingredients: found.length > 0 ? found : [input], desc: "שילוב בהתאמה אישית" });
+            uploadData();
+            toggleModal('add-idea-modal', false);
+            document.getElementById('new-idea-name').value = "";
+            document.getElementById('custom-mix-input').value = "";
+            document.getElementById('custom-result').classList.add('hidden');
         }
 
-        function deleteIdea(id) { customIdeas = customIdeas.filter(i => i.id !== id); uploadData(); }
-        function nav(s) { document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden')); document.getElementById(`sec-${s}`).classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active'); }
+        function deleteIdea(id) {
+            customIdeas = customIdeas.filter(i => i.id !== id);
+            uploadData();
+        }
+
+        function updateIdeas() {
+            if(!babyDOB) return;
+            const dob = new Date(babyDOB); const now = new Date();
+            let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+            if (now.getDate() < dob.getDate()) months--;
+            
+            const container = document.getElementById('ideas-content');
+            let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
+            
+            const allIdeas = [...baseIdeas, ...customIdeas];
+            allIdeas.forEach(idea => {
+                const isCustom = !baseIdeas.find(b => b.id === idea.id);
+                html += `
+                <div class="glass-card p-5 nutrition-card border border-white hover:border-sky-200 relative" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
+                    ${isCustom ? `<button onclick="event.stopPropagation(); deleteIdea(${idea.id})" class="absolute top-4 left-4 text-gray-300 hover:text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    <h4 class="font-bold text-lg text-gray-800">${idea.title}</h4>
+                    <p class="text-[10px] text-gray-400 mb-2">${idea.desc}</p>
+                    <div class="flex flex-wrap gap-1">
+                        ${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-lg">#${ing}</span>`).join('')}
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function nav(s) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`sec-${s}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active');
+        }
+
         function toggleModal(id, show) { document.getElementById(id).classList.toggle('active', show); }
-        function saveBabyInfo() { babyDOB = document.getElementById('baby-dob').value; uploadData(); toggleModal('baby-modal', false); }
-        function changeWeek(dir) { const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b), pos = weeks.indexOf(activeWeek) + dir; if (pos >= 0 && pos < weeks.length) { activeWeek = weeks[pos]; activeIdx = tastings.findIndex(t => t.week === activeWeek); renderHome(); } }
+
+        function saveBabyInfo() { 
+            babyDOB = document.getElementById('baby-dob').value; 
+            uploadData(); toggleModal('baby-modal', false); 
+        }
+
+        function changeWeek(dir) {
+            const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
+            const currentPos = weeks.indexOf(activeWeek);
+            const nextPos = currentPos + dir;
+            if (nextPos >= 0 && nextPos < weeks.length) {
+                activeWeek = weeks[nextPos]; activeIdx = tastings.findIndex(t => t.week === activeWeek); renderHome();
+            }
+        }
 
         function renderHome() {
-            const carousel = document.getElementById('week-carousel'); carousel.innerHTML = ''; 
-            const weekDays = tastings.filter(t => t.week === activeWeek); if(weekDays.length === 0) return;
+            const carousel = document.getElementById('week-carousel');
+            carousel.innerHTML = ''; const weekDays = tastings.filter(t => t.week === activeWeek);
+            if(weekDays.length === 0) return;
             const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
             document.getElementById('prev-week-btn').className = `fas fa-chevron-right nav-arrow text-sky-400 ${weeks.indexOf(activeWeek) === 0 ? 'disabled' : ''}`;
             document.getElementById('next-week-btn').className = `fas fa-chevron-left nav-arrow text-sky-400 ${weeks.indexOf(activeWeek) === weeks.length - 1 ? 'disabled' : ''}`;
+            let allDone = weekDays.every(t => t.status === 'done');
             weekDays.forEach((item, index) => {
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
-                carousel.innerHTML += `<div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}"><span class="text-[10px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span><div class="text-4xl mb-2">${item.emoji || "🥣"}</div><span class="text-xs font-bold text-gray-700">${item.food}</span></div>`;
+                carousel.innerHTML += `<div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105 shadow-md' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}"><span class="text-[10px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span><div class="text-4xl mb-2">${(index === 6) ? "🥗" : (item.emoji || "🥣")}</div><span class="text-xs font-bold text-gray-700">${item.food}</span>${item.status === 'done' ? '<div class="mt-2 text-sky-400"><i class="fas fa-check-circle text-sm"></i></div>' : ''}</div>`;
             });
+            if (allDone) carousel.innerHTML += `<div onclick="openModalForNew()" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center btn-next-week cursor-pointer"><div class="text-3xl mb-2">✨</div><span class="text-xs font-bold text-amber-600 text-center px-2">שבוע הבא</span></div>`;
             const current = tastings[activeIdx];
             if (current) {
                 document.getElementById('today-food-text').innerText = current.food;
@@ -337,6 +360,11 @@
         function markDayDone() {
             if(!tastings[activeIdx]) return;
             tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
+            if (tastings[activeIdx].status === 'done') {
+                const weekItems = tastings.filter(t => t.week === activeWeek);
+                const currentIdxInWeek = weekItems.indexOf(tastings[activeIdx]);
+                if (currentIdxInWeek < weekItems.length - 1) activeIdx = tastings.indexOf(weekItems[currentIdxInWeek + 1]);
+            }
             uploadData();
         }
 
@@ -345,29 +373,38 @@
             const weeks = [...new Set(tastings.map(t => t.week))];
             weeks.forEach(w => {
                 const items = tastings.filter(t => t.week === w), done = items.every(t => t.status === 'done');
-                container.innerHTML += `<div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm"><div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('repo-item-${w}').classList.toggle('open')"><div onclick="event.stopPropagation(); activeWeek=parseInt(${w}); activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');"><div class="text-xl font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div></div><i class="fas fa-chevron-down text-gray-300 chevron"></i></div><div class="repo-item-content"><div class="flex space-x-3 space-x-reverse overflow-x-auto no-scrollbar py-2">${items.map((it, idx) => `<div class="flex-shrink-0 w-20 h-28 bg-white/50 rounded-2xl flex flex-col items-center justify-center"><div class="text-xl">${it.emoji || "🥣"}</div><span class="text-[9px] font-bold text-gray-600">${it.food}</span></div>`).join('')}</div></div></div>`;
+                container.innerHTML += `<div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm"><div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('repo-item-${w}').classList.toggle('open')"><div onclick="event.stopPropagation(); activeWeek=parseInt(${w}); activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');"><div class="text-xl font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div><div class="text-xs text-gray-400 mt-1">${items[0].date || 'טרם נקבע'}</div></div><i class="fas fa-chevron-down text-gray-300 chevron"></i></div><div class="repo-item-content"><div class="flex space-x-3 space-x-reverse overflow-x-auto no-scrollbar py-2">${items.map((it, idx) => `<div class="flex-shrink-0 w-20 h-28 bg-white/50 rounded-2xl flex flex-col items-center justify-center border border-gray-50"><div class="text-xl">${idx === 6 ? "🥗" : (it.emoji || "🥣")}</div><span class="text-[9px] font-bold text-gray-600">${it.food}</span></div>`).join('')}</div><button onclick="openModalForEdit(${w})" class="w-full mt-3 py-2 text-xs text-sky-400 border-t border-gray-50 font-bold italic">עריכה</button></div></div>`;
             });
         }
 
         function renderMed() {
-            document.getElementById('med-list').innerHTML = medical.map((m, i) => `<div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic"><div><div class="font-bold text-gray-800">${m.name}</div><div class="text-xs text-gray-500">${m.date} | ${m.time}</div></div><button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200 p-2"><i class="fas fa-trash-alt text-lg"></i></button></div>`).join('');
+            document.getElementById('med-list').innerHTML = medical.map((m, i) => `<div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic text-base"><div><div class="font-bold text-gray-800">${m.name}</div><div class="text-xs text-gray-500">${m.date} | ${m.time}</div>${m.loc ? `<div class="text-[10px] text-sky-400 mt-1"><i class="fas fa-map-marker-alt"></i> ${m.loc}</div>` : ''}</div><div class="flex items-center gap-3">${m.loc ? `<a href="waze://?q=${encodeURIComponent(m.loc)}&navigate=yes" class="text-sky-400 p-2"><i class="fas fa-car text-xl"></i></a>` : ''}<button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200 p-2"><i class="fas fa-trash-alt text-lg"></i></button></div></div>`).join('');
         }
 
         function addMed() {
-            const n = document.getElementById('med-name').value, d = document.getElementById('med-date').value, t = document.getElementById('med-time').value;
-            if(!n || !d) return; medical.push({ name: n, date: d, time: t }); uploadData();
-            document.getElementById('med-name').value = '';
+            const n = document.getElementById('med-name').value, l = document.getElementById('med-loc').value, d = document.getElementById('med-date').value, t = document.getElementById('med-time').value;
+            if(!n || !d) return; medical.push({ name: n, loc: l, date: d, time: t }); uploadData();
+            document.getElementById('med-name').value = ''; document.getElementById('med-loc').value = '';
         }
 
-        function openModalForNew() { editingWeek = null; document.getElementById('modal-title').innerText = "שבוע חדש ✨"; toggleModal('week-modal', true); }
-        function openModalForEdit(w) { editingWeek = w; toggleModal('week-modal', true); }
+        function openModalForNew() { editingWeek = null; document.getElementById('modal-title').innerText = "שבוע חדש ✨"; document.getElementById('modal-foods').value = "בטטה, בטטה, בטטה, גזר, גזר, גזר, שילוב"; toggleModal('week-modal', true); }
+        function openModalForEdit(w) { 
+            editingWeek = w; const items = tastings.filter(t => t.week === w);
+            if(items.length > 0) {
+                document.getElementById('modal-title').innerText = `עריכת שבוע ${w}`;
+                document.getElementById('modal-dates').value = items[0].date || '';
+                document.getElementById('modal-emoji').value = items[0].emoji || '';
+                document.getElementById('modal-foods').value = items.map(i => i.food).join(', ');
+                toggleModal('week-modal', true); 
+            }
+        }
         function saveWeek() {
             const dates = document.getElementById('modal-dates').value, emoji = document.getElementById('modal-emoji').value, foods = document.getElementById('modal-foods').value, foodArr = foods.split(',').map(s => s.trim());
             if (editingWeek) {
                 let dayC = 0; tastings.forEach(t => { if(t.week === editingWeek) { t.date = dates; t.emoji = emoji; t.food = foodArr[dayC++] || foodArr[0]; } });
             } else {
                 const nextW = tastings.length > 0 ? Math.max(...tastings.map(t => t.week)) + 1 : 1, lastD = tastings.length > 0 ? Math.max(...tastings.map(t => t.day)) : 0;
-                for(let i=0; i<7; i++) { tastings.push({ id: Date.now() + i, week: nextW, day: lastD + 1 + i, food: foodArr[i] || foodArr[0], emoji: emoji, status: 'pending', date: dates }); }
+                for(let i=0; i<7; i++) { tastings.push({ id: Date.now() + i, week: nextW, day: lastD + 1 + i, food: foodArr[i] || foodArr[0], emoji: i === 6 ? "🥗" : emoji, status: 'pending', date: dates }); }
                 activeWeek = nextW; activeIdx = tastings.findIndex(t => t.week === activeWeek);
             }
             uploadData(); toggleModal('week-modal', false);
