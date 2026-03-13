@@ -189,7 +189,8 @@
             "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
             "אבוקדו": { info: "שומנים בריאים (חומצה אולאית) למוח.", vit: ["E", "K", "B5"], mineral: "שומן בריא" },
             "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
-            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" }
+            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
+            "בננה": { info: "אנרגיה זמינה, אשלגן וויטמין B6.", vit: ["B6", "C"], mineral: "אשלגן" }
         };
 
         const baseIdeas = [
@@ -229,7 +230,7 @@
                         </div>
                     </div>`;
                 } else {
-                    bodyHtml += `<div class="p-3 bg-gray-50 rounded-xl"><b>${ing}:</b> ערכים תזונתיים חיוניים.</div>`;
+                    bodyHtml += `<div class="p-4 bg-gray-50 rounded-2xl border-r-4 border-gray-200"><div class="font-bold">${ing}</div><div class="text-xs text-gray-400">ערכים תזונתיים חיוניים להתפתחות.</div></div>`;
                 }
             });
             document.getElementById('nutri-body').innerHTML = bodyHtml;
