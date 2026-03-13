@@ -79,7 +79,7 @@
             <div class="glass-card p-4 shadow-sm border-sky-100">
                 <h4 class="text-sm font-bold text-sky-500 mb-2">מחשבון שילובים אישי</h4>
                 <div class="flex gap-2">
-                    <input id="custom-mix-input" type="text" placeholder="למשל: עוף וגזר" class="flex-1 bg-white border rounded-xl p-2 text-sm">
+                    <input id="custom-mix-input" type="text" placeholder="למשל: בשר טחון וגזר" class="flex-1 bg-white border rounded-xl p-2 text-sm">
                     <button onclick="calculateCustomNutrition()" class="bg-sky-400 text-white px-3 rounded-xl text-sm font-bold">בדוק</button>
                     <button onclick="openAddIdeaModal()" class="bg-green-400 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md"><i class="fas fa-plus"></i></button>
                 </div>
@@ -201,61 +201,34 @@
 
         // מסד נתונים מורחב של ערכים תזונתיים
         const nutriDB = {
-            // ירקות
-            "בטטה": { info: "ויטמין A (בטא קרוטן) לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
-            "גזר": { info: "עשיר בויטמין A ונוגדי חמצון. מצוין לעיכול.", vit: ["A", "K"], mineral: "סיבים" },
+            "בטטה": { info: "ויטמין A לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
+            "גזר": { info: "עשיר בויטמין A ונוגדי חמצון.", vit: ["A", "K"], mineral: "סיבים" },
             "קישוא": { info: "קל לעיכול, עשיר במגנזיום וויטמין C.", vit: ["C", "B6"], mineral: "מגנזיום" },
             "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
-            "אפונה": { info: "חלבון, סיבים וויטמין K לבניית עצמות.", vit: ["K", "C", "B1"], mineral: "חלבון" },
+            "אפונה": { info: "חלבון וסיבים לבניית עצמות.", vit: ["K", "C"], mineral: "חלבון" },
             "דלעת": { info: "ויטמין A לראייה ונוגדי חמצון.", vit: ["A", "C"], mineral: "אשלגן" },
             "תפוח אדמה": { info: "פחמימה מורכבת המספקת אנרגיה.", vit: ["C", "B6"], mineral: "אשלגן" },
-            "כרובית": { info: "ויטמין C וסיבים תזונתיים.", vit: ["C", "K"], mineral: "סיבים" },
-            "סלק": { info: "מקור טוב לחומצה פולית ומנגן.", vit: ["B9", "C"], mineral: "ברזל" },
-            "תרד": { info: "עשיר בברזל וויטמינים, חשוב לדם.", vit: ["A", "C", "K"], mineral: "ברזל" },
-            "גמבה": { info: "שיא של ויטמין C, מחזק חיסון.", vit: ["C", "B6"], mineral: "נוגדי חמצון" },
-            "מלפפון": { info: "מכיל הרבה מים לרענון והידרציה, ויטמין K.", vit: ["K", "C"], mineral: "מגנזיום" },
-            "עגבניה": { info: "עשירה בליקופן (נוגד חמצון) וויטמין C.", vit: ["C", "A", "K"], mineral: "אשלגן" },
-            "בצל": { info: "נוגד דלקת טבעי, מחזק את המערכת החיסונית.", vit: ["C", "B6"], mineral: "קוורצטין" },
-            "חסה": { info: "קלה מאוד ועשירה במים וסיבים.", vit: ["A", "K"], mineral: "חומצה פולית" },
-            
-            // פירות
-            "תפוח": { info: "סיבים (פקטין), ויטמינים מקבוצת B.", vit: ["B1", "B2", "C"], mineral: "סיבים" },
-            "בננה": { info: "אנרגיה זמינה, אשלגן וויטמין B6.", vit: ["B6", "C"], mineral: "אשלגן" },
-            "אבוקדו": { info: "שומנים בריאים (חומצה אולאית) למוח.", vit: ["E", "K", "B5"], mineral: "שומן בריא" },
-            "אגס": { info: "עדין מאוד למערכת העיכול, עשיר בסיבים.", vit: ["C", "K"], mineral: "נחושת" },
-            "מלון": { info: "מרווה מאוד, עשיר בויטמין A ו-C.", vit: ["A", "C"], mineral: "אשלגן" },
-            "מנגו": { info: "פצצת ויטמין A ונוגדי חמצון.", vit: ["A", "C", "E"], mineral: "סיבים" },
-            "תפוז": { info: "ויטמין C לספיגת ברזל מקסימלית.", vit: ["C", "B9"], mineral: "סידן" },
-            "אפרסק": { info: "טוב לעיכול, עשיר בויטמין C ואשלגן.", vit: ["C", "A"], mineral: "אשלגן" },
-            "שזיף": { info: "מסייע מאוד לפעילות מעיים תקינה.", vit: ["A", "C", "K"], mineral: "סיבים" },
-            "ענבים": { info: "נוגדי חמצון חזקים (יש לחתוך לאורך!).", vit: ["C", "K"], mineral: "פוליפנולים" },
-            
-            // חלבון (בשר, דגים, ביצים)
-            "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל, חלבון" },
-            "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
-            "בשר טחון": { info: "מקור מצוין לברזל זמין ואבץ החיוניים לגדילה.", vit: ["B12", "B6"], mineral: "ברזל, אבץ" },
-            "סלמון": { info: "חומצות שומן אומגה 3 להתפתחות המוח.", vit: ["D", "B12"], mineral: "אומגה 3" },
-            "ביצה": { info: "חלבון מושלם וכולין לבריאות המוח.", vit: ["A", "D", "B12"], mineral: "חלבון" },
-            "בקר": { info: "מקור הברזל העשיר ביותר, קריטי לגדילה.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
-            "לברק": { info: "דג קל לעיכול, חלבון נקי.", vit: ["B6", "B12"], mineral: "יוד" },
-            
-            // קטניות ודגנים
-            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9"], mineral: "ברזל, חלבון" },
-            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1", "B6"], mineral: "סידן, ברזל" },
-            "קינואה": { info: "חלבון מלא המכיל את כל חומצות האמינו.", vit: ["B2", "E"], mineral: "מגנזיום" },
-            "אורז": { info: "קל מאוד לעיכול ואנרגטי.", vit: ["B1", "B3"], mineral: "סיבים" },
-            "חומוס": { info: "עשיר בחלבון צמחי וסיבים.", vit: ["B9", "B6"], mineral: "ברזל, מגנזיום" }
+            "עגבניה": { info: "עשירה בליקופן וויטמין C לחיזוק הגוף.", vit: ["C", "A"], mineral: "אשלגן" },
+            "מלפפון": { info: "מכיל הרבה מים לרענון והידרציה.", vit: ["K"], mineral: "מגנזיום" },
+            "בשר טחון": { info: "מקור ברזל איכותי וקריטי לגדילה.", vit: ["B12"], mineral: "ברזל, אבץ" },
+            "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל" },
+            "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12"], mineral: "ברזל" },
+            "אבוקדו": { info: "שומנים בריאים להתפתחות המוח.", vit: ["E", "K"], mineral: "שומן בריא" },
+            "בננה": { info: "אנרגיה זמינה ואשלגן.", vit: ["B6", "C"], mineral: "אשלגן" },
+            "תפוח": { info: "סיבים תזונתיים וויטמין C.", vit: ["C"], mineral: "סיבים" },
+            "אגס": { info: "עדין מאוד למערכת העיכול.", vit: ["C", "K"], mineral: "נחושת" },
+            "סלק": { info: "מקור לחומצה פולית וברזל.", vit: ["B9"], mineral: "ברזל" },
+            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1"], mineral: "סידן, ברזל" },
+            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9"], mineral: "חלבון, ברזל" }
         };
 
         const baseIdeas = [
             { id: 1, title: "המרק הכתום הקלאסי", ingredients: ["בטטה", "גזר", "עדשים"], desc: "פצצת ויטמינים לחיזוק החיסון" },
             { id: 2, title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
             { id: 3, title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
-            { id: 4, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" },
-            { id: 5, title: "דג ופחמימה חכמה", ingredients: ["סלמון", "קינואה", "קישוא"], desc: "אומגה 3 להתפתחות מוחית" },
-            { id: 6, title: "מנה אדומה ומחזקת", ingredients: ["בקר", "סלק", "תפוח אדמה"], desc: "ברזל גבוה וטעם מתקתק" },
-            { id: 7, title: "בולונז לתינוקות", ingredients: ["בשר טחון", "עגבניה", "בצל"], desc: "עשיר בברזל וטעם עשיר" },
-            { id: 8, title: "סלט ראשון שלי", ingredients: ["מלפפון", "עגבניה", "טחינה"], desc: "מרקם מרענן ובריא" }
+            { id: 4, title: "בולונז לתינוקות", ingredients: ["בשר טחון", "עגבניה", "בצל"], desc: "מנה עשירה בברזל וטעם" },
+            { id: 5, title: "סלט ראשון שלי", ingredients: ["מלפפון", "עגבניה", "טחינה"], desc: "שילוב רענן ומרקם מעניין" },
+            { id: 6, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" }
         ];
 
         db.ref('rom_sync').on('value', (s) => {
@@ -336,14 +309,16 @@
         }
 
         function updateIdeas() {
-            if(!babyDOB) return;
-            const dob = new Date(babyDOB); const now = new Date();
-            let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
-            if (now.getDate() < dob.getDate()) months--;
-            
             const container = document.getElementById('ideas-content');
-            let html = `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
+            let html = "";
             
+            if(babyDOB) {
+                const dob = new Date(babyDOB); const now = new Date();
+                let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+                if (now.getDate() < dob.getDate()) months--;
+                html += `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
+            }
+
             const allIdeas = [...baseIdeas, ...customIdeas];
             allIdeas.forEach(idea => {
                 const isCustom = !baseIdeas.find(b => b.id === idea.id);
@@ -365,6 +340,7 @@
             document.getElementById(`sec-${s}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active');
+            if(s === 'ideas') updateIdeas();
         }
 
         function toggleModal(id, show) { document.getElementById(id).classList.toggle('active', show); }
