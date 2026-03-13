@@ -30,6 +30,8 @@
 
         @keyframes pulse-gold { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(250, 204, 21, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } }
         .btn-next-week { animation: pulse-gold 2s infinite; border: 2px solid #fbbf24 !important; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+        .nav-arrow { cursor: pointer; padding: 5px 10px; transition: opacity 0.3s; }
+        .nav-arrow.disabled { opacity: 0.2; cursor: default; }
     </style>
 </head>
 <body class="pb-24">
@@ -53,7 +55,14 @@
             </div>
             <div class="space-y-3">
                 <div class="flex justify-between items-center px-2">
-                    <h2 class="text-xl font-bold text-gray-800 italic text-right">המסע של רום <span class="text-sky-300 text-sm cursor-pointer" onclick="openModalForEdit(activeWeek)"><i class="fas fa-edit mr-2"></i></span></h2>
+                    <h2 class="text-xl font-bold text-gray-800 italic text-right flex items-center gap-3">
+                        המסע של רום
+                        <div class="flex items-center gap-1">
+                            <i id="prev-week-btn" onclick="changeWeek(-1)" class="fas fa-chevron-right nav-arrow text-sky-400 text-sm"></i>
+                            <i id="next-week-btn" onclick="changeWeek(1)" class="fas fa-chevron-left nav-arrow text-sky-400 text-sm"></i>
+                        </div>
+                        <span class="text-sky-300 text-sm cursor-pointer" onclick="openModalForEdit(activeWeek)"><i class="fas fa-edit"></i></span>
+                    </h2>
                 </div>
                 <div id="week-carousel" class="flex space-x-4 space-x-reverse overflow-x-auto no-scrollbar pb-2 italic"></div>
             </div>
@@ -136,11 +145,26 @@
             if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active');
         }
 
+        function changeWeek(dir) {
+            const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
+            const currentPos = weeks.indexOf(activeWeek);
+            const nextPos = currentPos + dir;
+            if (nextPos >= 0 && nextPos < weeks.length) {
+                activeWeek = weeks[nextPos];
+                activeIdx = tastings.findIndex(t => t.week === activeWeek);
+                renderHome();
+            }
+        }
+
         function renderHome() {
             const carousel = document.getElementById('week-carousel');
             carousel.innerHTML = '';
             const weekDays = tastings.filter(t => t.week === activeWeek);
             if(weekDays.length === 0) return;
+
+            const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
+            document.getElementById('prev-week-btn').className = `fas fa-chevron-right nav-arrow text-sky-400 ${weeks.indexOf(activeWeek) === 0 ? 'disabled' : ''}`;
+            document.getElementById('next-week-btn').className = `fas fa-chevron-left nav-arrow text-sky-400 ${weeks.indexOf(activeWeek) === weeks.length - 1 ? 'disabled' : ''}`;
 
             let allDone = weekDays.length > 0 && weekDays.every(t => t.status === 'done');
 
@@ -156,7 +180,6 @@
                     </div>`;
             });
 
-            // כפתור שבוע הבא חגיגי אם הכל הושלם
             if (allDone) {
                 carousel.innerHTML += `
                     <div onclick="openModalForNew()" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all btn-next-week cursor-pointer">
@@ -168,7 +191,7 @@
             const current = tastings[activeIdx];
             if (current) {
                 document.getElementById('today-food-text').innerText = current.food;
-                document.getElementById('today-day-text').innerText = `יום ${current.day} למסע`;
+                document.getElementById('today-day-text').innerText = `יום ${current.day} למסע (שבוע ${activeWeek})`;
                 document.getElementById('main-check-btn').style.backgroundColor = current.status === 'done' ? "#10b981" : "#38bdf8";
             }
         }
@@ -206,7 +229,7 @@
                 container.innerHTML += `
                     <div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm">
                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleRepoItem(${w})">
-                            <div onclick="event.stopPropagation(); activeWeek=${w}; activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');">
+                            <div onclick="event.stopPropagation(); activeWeek=parseInt(${w}); activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');">
                                 <div class="text-xl font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div>
                                 <div class="text-xs text-gray-400 mt-1">${items[0].date || 'טרם נקבע'}</div>
                             </div>
