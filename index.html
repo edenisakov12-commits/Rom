@@ -31,8 +31,12 @@
         .nav-arrow { cursor: pointer; padding: 5px 10px; }
         .nav-arrow.disabled { opacity: 0.2; }
         #week-carousel { padding: 15px 10px !important; }
+        .nutrition-card { transition: all 0.3s ease; cursor: pointer; }
+        .nutrition-card:active { scale: 0.98; }
         .updates-banner { background: linear-gradient(to left, #f0f9ff, #ffffff); border: 1px solid #e0f2fe; border-radius: 20px; padding: 12px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .cat-btn { width: 100%; padding: 18px; border-radius: 25px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; font-weight: bold; transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.05); text-align: right; }
+        
+        /* עיצוב כפתורי קטגוריות חדשים */
+        .cat-btn { width: 100%; padding: 14px; border-radius: 20px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 14px; transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.03); }
         .cat-btn:active { transform: scale(0.97); }
     </style>
 </head>
@@ -50,7 +54,7 @@
             <div id="updates-container" class="updates-banner">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-bell text-sky-400 text-sm"></i>
-                    <span id="update-text" class="text-gray-700 font-semibold text-sm italic">טוען עדכונים...</span>
+                    <span id="update-text" class="text-gray-700 font-semibold text-sm italic">אין עדכונים חדשים</span>
                 </div>
                 <button onclick="editUpdate()" class="text-sky-300 hover:text-sky-500 transition-colors">
                     <i class="fas fa-pen text-xs"></i>
@@ -82,27 +86,27 @@
 
         <section id="sec-ideas" class="hidden space-y-6">
             <div class="flex justify-between items-center px-2">
-                <button onclick="toggleModal('danger-modal', true)" class="w-12 h-12 bg-red-50 text-red-500 shadow-md rounded-full flex items-center justify-center text-xl border border-red-100 font-bold">!</button>
-                <h2 class="text-2xl font-bold text-gray-800 italic">רעיונות וערכים</h2>
                 <div class="w-12"></div>
+                <h2 class="text-2xl font-bold text-gray-800 italic">רעיונות וערכים</h2>
+                <button onclick="toggleModal('danger-modal', true)" class="w-12 h-12 bg-red-50 text-red-500 shadow-md rounded-full flex items-center justify-center text-xl border border-red-100 font-bold">!</button>
             </div>
             
+            <div class="space-y-2 mb-4">
+                <button onclick="openCategoryModal('כתום', '#fff7ed', '#f97316', 'fa-carrot')" class="cat-btn bg-[#fff7ed] text-[#f97316]"><i class="fas fa-carrot"></i> אוכל כתום</button>
+                <button onclick="openCategoryModal('ירוק', '#f0fdf4', '#22c55e', 'fa-leaf')" class="cat-btn bg-[#f0fdf4] text-[#22c55e]"><i class="fas fa-leaf"></i> אוכל ירוק</button>
+                <button onclick="openCategoryModal('בשר', '#fef2f2', '#ef4444', 'fa-drumstick-bite')" class="cat-btn bg-[#fef2f2] text-[#ef4444]"><i class="fas fa-drumstick-bite"></i> מנות עם בשר</button>
+                <button onclick="openCategoryModal('דגים', '#f0f9ff', '#0ea5e9', 'fa-fish')" class="cat-btn bg-[#f0f9ff] text-[#0ea5e9]"><i class="fas fa-fish"></i> מנות עם דגים</button>
+                <button onclick="openCategoryModal('סופר פוד', '#faf5ff', '#a855f7', 'fa-star')" class="cat-btn bg-[#faf5ff] text-[#a855f7]"><i class="fas fa-star"></i> מנות סופר פוד</button>
+            </div>
+
             <div class="glass-card p-4 shadow-sm border-sky-100">
-                <h4 class="text-sm font-bold text-sky-500 mb-2 italic">מחשבון שילובים אישי</h4>
+                <h4 class="text-sm font-bold text-sky-500 mb-2">מחשבון שילובים אישי</h4>
                 <div class="flex gap-2">
-                    <input id="custom-mix-input" type="text" placeholder="למשל: בשר טחון וגזר" class="flex-1 bg-white border rounded-xl p-2 text-sm text-right">
+                    <input id="custom-mix-input" type="text" placeholder="למשל: בשר טחון וגזר" class="flex-1 bg-white border rounded-xl p-2 text-sm">
                     <button onclick="calculateCustomNutrition()" class="bg-sky-400 text-white px-3 rounded-xl text-sm font-bold">בדוק</button>
                     <button onclick="openAddIdeaModal()" class="bg-green-400 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md"><i class="fas fa-plus"></i></button>
                 </div>
-                <div id="custom-result" class="mt-2 text-[10px] text-gray-500 hidden bg-sky-50 p-2 rounded-lg text-right"></div>
-            </div>
-
-            <div class="space-y-2">
-                <button onclick="openCategory('כתום', '#fff7ed', '#f97316', 'fa-carrot')" class="cat-btn bg-[#fff7ed] text-[#f97316]"><i class="fas fa-carrot"></i> אוכל כתום</button>
-                <button onclick="openCategory('ירוק', '#f0fdf4', '#22c55e', 'fa-leaf')" class="cat-btn bg-[#f0fdf4] text-[#22c55e]"><i class="fas fa-leaf"></i> אוכל ירוק</button>
-                <button onclick="openCategory('בשר', '#fef2f2', '#ef4444', 'fa-drumstick-bite')" class="cat-btn bg-[#fef2f2] text-[#ef4444]"><i class="fas fa-drumstick-bite"></i> מנות עם בשר</button>
-                <button onclick="openCategory('דגים', '#f0f9ff', '#0ea5e9', 'fa-fish')" class="cat-btn bg-[#f0f9ff] text-[#0ea5e9]"><i class="fas fa-fish"></i> מנות עם דגים</button>
-                <button onclick="openCategory('סופר פוד', '#faf5ff', '#a855f7', 'fa-star')" class="cat-btn bg-[#faf5ff] text-[#a855f7]"><i class="fas fa-star"></i> מנות סופר פוד</button>
+                <div id="custom-result" class="mt-2 text-[10px] text-gray-500 hidden bg-sky-50 p-2 rounded-lg"></div>
             </div>
 
             <div id="ideas-content" class="space-y-4"></div>
@@ -129,19 +133,19 @@
         </section>
     </main>
 
-    <div id="category-modal" class="modal">
+    <div id="category-detail-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-6 shadow-2xl text-right overflow-y-auto max-h-[85vh]">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <button onclick="toggleModal('category-modal', false)" class="text-gray-400 text-xl"><i class="fas fa-times"></i></button>
-                <h3 id="cat-modal-title" class="text-2xl font-bold"></h3>
+                <button onclick="toggleModal('category-detail-modal', false)" class="text-gray-400 text-xl"><i class="fas fa-times"></i></button>
+                <h3 id="cat-detail-title" class="text-2xl font-bold"></h3>
             </div>
-            <div id="cat-modal-content" class="space-y-4"></div>
+            <div id="cat-detail-content" class="space-y-4"></div>
         </div>
     </div>
 
     <div id="nutri-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right overflow-y-auto max-h-[80vh]">
-            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500 border-b pb-2 italic"></h3>
+            <h3 id="nutri-title" class="text-2xl font-bold text-sky-500 border-b pb-2"></h3>
             <div id="nutri-body" class="text-sm space-y-4 text-gray-600"></div>
             <button onclick="toggleModal('nutri-modal', false)" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold sticky bottom-0">סגור</button>
         </div>
@@ -149,11 +153,11 @@
 
     <div id="add-idea-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right">
-            <h3 class="text-2xl font-bold text-gray-800 italic">הוספת שילוב חדש 🥗</h3>
-            <input id="new-idea-name" type="text" placeholder="שם המנה" class="w-full border rounded-2xl p-3 text-right">
-            <p id="new-idea-items" class="text-xs text-sky-400 font-bold italic"></p>
+            <h3 class="text-2xl font-bold text-gray-800">הוספת שילוב חדש 🥗</h3>
+            <input id="new-idea-name" type="text" placeholder="שם המנה (למשל: המרק של רום)" class="w-full border rounded-2xl p-3 text-right text-base">
+            <p id="new-idea-items" class="text-xs text-sky-400 font-bold"></p>
             <div class="flex gap-2">
-                <button onclick="saveNewIdea()" class="flex-1 bg-green-400 text-white p-3 rounded-2xl font-bold">שמור</button>
+                <button onclick="saveNewIdea()" class="flex-1 bg-green-400 text-white p-3 rounded-2xl font-bold">שמור לרשימה</button>
                 <button onclick="toggleModal('add-idea-modal', false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold">ביטול</button>
             </div>
         </div>
@@ -161,33 +165,53 @@
 
     <div id="week-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-center">
-            <h3 id="modal-title" class="text-2xl font-bold text-gray-800 italic">ניהול שבוע ✨</h3>
-            <input id="modal-dates" type="text" placeholder="תאריכים" class="w-full border rounded-2xl p-3 text-right">
-            <input id="modal-emoji" type="text" placeholder="אימוג'י" class="w-full border rounded-2xl p-3 text-right">
-            <textarea id="modal-foods" placeholder="ירקות (מופרדים בפסיק)" class="w-full border rounded-2xl p-3 text-right h-24"></textarea>
-            <div class="flex gap-2"><button onclick="saveWeek()" class="flex-1 bg-sky-400 text-white p-3 rounded-2xl font-bold">שמור</button><button onclick="toggleModal('week-modal', false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold">ביטול</button></div>
+            <h3 id="modal-title" class="text-2xl font-bold text-gray-800">ניהול שבוע ✨</h3>
+            <input id="modal-dates" type="text" placeholder="תאריכים" class="w-full border rounded-2xl p-3 text-right text-base">
+            <input id="modal-emoji" type="text" placeholder="אימוג'י" class="w-full border rounded-2xl p-3 text-right text-base">
+            <textarea id="modal-foods" placeholder="ירקות" class="w-full border rounded-2xl p-3 text-right text-base h-24"></textarea>
+            <div class="flex gap-2"><button onclick="saveWeek()" class="flex-1 bg-sky-400 text-white p-3 rounded-2xl font-bold text-base">שמור</button><button onclick="toggleModal('week-modal', false)" class="flex-1 bg-gray-100 text-gray-500 p-3 rounded-2xl font-bold text-base">ביטול</button></div>
         </div>
     </div>
 
     <div id="baby-modal" class="modal">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-center">
             <h3 class="text-2xl font-bold text-gray-800">פרופיל רום 👶</h3>
-            <input id="baby-dob" type="date" class="w-full border rounded-2xl p-3 text-center">
-            <button onclick="saveBabyInfo()" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold">עדכן תאריך</button>
+            <input id="baby-dob" type="date" class="w-full border rounded-2xl p-3 text-center text-base">
+            <button onclick="saveBabyInfo()" class="w-full bg-sky-400 text-white p-3 rounded-2xl font-bold">עדכן תאריך לידה</button>
             <button onclick="toggleModal('baby-modal', false)" class="w-full text-gray-400 text-sm">סגור</button>
         </div>
     </div>
 
     <div id="danger-modal" class="modal" onclick="toggleModal('danger-modal', false)">
         <div class="glass-card w-full max-w-sm p-8 shadow-2xl space-y-4 text-right overflow-y-auto max-h-[80vh]" onclick="event.stopPropagation()">
-            <h3 class="text-2xl font-bold text-red-500 mb-4">אסור לשימוש! 🚫</h3>
-            <div class="space-y-4 text-gray-700 text-base italic">
-                <p>• <b>דבש:</b> סכנת בוטוליזם.</p>
-                <p>• <b>חלב ניגר:</b> עומס על הכליות.</p>
-                <p>• <b>סכנת חנק:</b> פיצוחים, ענבים לא חתוכים, סוכריות קשות.</p>
-                <p>• <b>מלח וסוכר:</b> להימנע לחלוטין.</p>
+            <h3 class="text-2xl font-bold text-red-500 mb-4">אסור לשימוש (עד גיל שנה)! 🚫</h3>
+            <div class="space-y-4 text-gray-700 text-base">
+                <div class="border-b pb-2">
+                    <p class="font-bold text-red-600">סכנת הרעלה/זיהום:</p>
+                    <ul class="mr-4">
+                        <li>• <b>דבש:</b> סכנת בוטוליזם חמורה.</li>
+                        <li>• <b>חלב ניגר:</b> עומס על הכליות.</li>
+                        <li>• <b>ביצים/בשר/דג נא:</b> סכנת סלמונלה.</li>
+                    </ul>
+                </div>
+                <div class="border-b pb-2">
+                    <p class="font-bold text-red-600">סכנת חנק (עד גיל 5):</p>
+                    <ul class="mr-4">
+                        <li>• <b>פיצוחים:</b> מכל סוג שהוא.</li>
+                        <li>• <b>ענבים/זיתים:</b> ללא חיתוך לאורך.</li>
+                        <li>• <b>סוכריות קשות:</b> ופופקורן.</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-red-600">הנחיות נוספות:</p>
+                    <ul class="mr-4">
+                        <li>• <b>מלח וסוכר:</b> להימנע לחלוטין.</li>
+                        <li>• <b>מיצים:</b> עדיף מים או פרי שלם.</li>
+                        <li>• <b>דגים עתירי כספית:</b> כמו טונה אדומה.</li>
+                    </ul>
+                </div>
             </div>
-            <button onclick="toggleModal('danger-modal', false)" class="w-full bg-gray-800 text-white p-3 rounded-2xl mt-4">הבנתי</button>
+            <button onclick="toggleModal('danger-modal', false)" class="w-full bg-gray-800 text-white p-3 rounded-2xl mt-4">הבנתי, אזהר</button>
         </div>
     </div>
 
@@ -212,23 +236,63 @@
             "בטטה": { info: "ויטמין A לראייה, ויטמין C, ואשלגן.", vit: ["A", "C"], mineral: "אשלגן" },
             "גזר": { info: "עשיר בויטמין A ונוגדי חמצון.", vit: ["A", "K"], mineral: "סיבים" },
             "קישוא": { info: "קל לעיכול, עשיר במגנזיום וויטמין C.", vit: ["C", "B6"], mineral: "מגנזיום" },
-            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K"], mineral: "סידן" },
+            "ברוקולי": { info: "סידן, ויטמין C וחומצה פולית.", vit: ["C", "K", "A"], mineral: "סידן" },
             "אפונה": { info: "חלבון וסיבים לבניית עצמות.", vit: ["K", "C"], mineral: "חלבון" },
             "דלעת": { info: "ויטמין A לראייה ונוגדי חמצון.", vit: ["A", "C"], mineral: "אשלגן" },
-            "תפוח אדמה": { info: "פחמימה מורכבת המספקת אנרגיה.", vit: ["C"], mineral: "אשלגן" },
-            "בשר טחון": { info: "מקור ברזל איכותי לגדילה.", vit: ["B12"], mineral: "ברזל" },
-            "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12"], mineral: "ברזל" },
-            "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12"], mineral: "ברזל" },
-            "סלמון": { info: "חומצות שומן אומגה 3 למוח.", vit: ["D", "B12"], mineral: "אומגה 3" },
-            "לברק": { info: "דג קל לעיכול עם אומגה 3.", vit: ["D"], mineral: "יוד" },
-            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9"], mineral: "חלבון" },
+            "תפוח אדמה": { info: "פחמימה מורכבת המספקת אנרגיה.", vit: ["C", "B6"], mineral: "אשלגן" },
+            "כרובית": { info: "עשירה בויטמינים מקבוצת B וסיבים.", vit: ["C", "K", "B6"], mineral: "סיבים" },
+            "שעועית ירוקה": { info: "מקור טוב לויטמין A וסידן.", vit: ["A", "C", "K"], mineral: "סידן" },
+            "סלק": { info: "מקור לחומצה פולית וברזל.", vit: ["B9"], mineral: "ברזל" },
+            "תירס": { info: "מספק אנרגיה וסיבים תזונתיים.", vit: ["B1", "B5"], mineral: "מגנזיום" },
+            "בצל": { info: "אנטי-דלקתי, מוסיף טעם בריא.", vit: ["C", "B6"], mineral: "כרום" },
+            "קולרבי": { info: "עשיר מאוד בויטמין C וסיבים.", vit: ["C", "B6"], mineral: "אשלגן" },
+            "חסה": { info: "מספקת נוזלים וויטמין K.", vit: ["K", "A"], mineral: "חומצה פולית" },
+            "שום": { info: "מחזק את המערכת החיסונית (בכמויות קטנות).", vit: ["C", "B6"], mineral: "סלניום" },
+            "גמבה": { info: "פצצת ויטמין C לחיזוק הגוף.", vit: ["C", "A", "B6"], mineral: "נוגדי חמצון" },
+            "תרד": { info: "עשיר בברזל וויטמינים (לתת במתינות).", vit: ["A", "C", "K"], mineral: "ברזל, סידן" },
             "אבוקדו": { info: "שומנים בריאים להתפתחות המוח.", vit: ["E", "K"], mineral: "שומן בריא" },
-            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1"], mineral: "סידן" },
-            "בננה": { info: "אנרגיה זמינה ואשלגן.", vit: ["B6"], mineral: "אשלגן" },
-            "תרד": { info: "עשיר בברזל וויטמינים.", vit: ["A", "K"], mineral: "ברזל" }
+            "בננה": { info: "אנרגיה זמינה ואשלגן.", vit: ["B6", "C"], mineral: "אשלגן" },
+            "תפוח": { info: "סיבים תזונתיים וויטמין C.", vit: ["C"], mineral: "סיבים" },
+            "אגס": { info: "עדין מאוד למערכת העיכול.", vit: ["C", "K"], mineral: "נחושת" },
+            "מלון": { info: "עשיר בנוזלים וויטמין A.", vit: ["A", "C"], mineral: "אשלגן" },
+            "אבטיח": { info: "הידרציה מעולה וויטמינים.", vit: ["A", "C"], mineral: "ליקופן" },
+            "מנגו": { info: "עשיר בויטמין A וטעם מתוק טבעי.", vit: ["A", "C", "E"], mineral: "סיבים" },
+            "פפאיה": { info: "מסייעת לעיכול ועשירה בויטמין C.", vit: ["C", "A"], mineral: "פפאין" },
+            "תפוז": { info: "ויטמין C לספיגת ברזל טובה יותר.", vit: ["C"], mineral: "חומצה פולית" },
+            "קלמנטינה": { info: "קלה לקילוף, מלאה בויטמין C.", vit: ["C"], mineral: "אשלגן" },
+            "שזיף": { info: "מעולה להסדרת מערכת העיכול.", vit: ["C", "K"], mineral: "סיבים" },
+            "אפרסק": { info: "מרקם רך וויטמינים טובים.", vit: ["A", "C"], mineral: "אשלגן" },
+            "משמש": { info: "עשיר בבטא-קרוטן וברזל.", vit: ["A", "C"], mineral: "ברזל" },
+            "ענבים": { info: "אנרגיה ונוגדי חמצון (רק חתוך לאורך!).", vit: ["C", "K"], mineral: "אשלגן" },
+            "תות שדה": { info: "עשיר בויטמין C ונוגדי חמצון.", vit: ["C", "B9"], mineral: "מנגן" },
+            "בשר טחון": { info: "מקור ברזל איכותי וקריטי לגדילה.", vit: ["B12"], mineral: "ברזל, אבץ" },
+            "עוף": { info: "חלבון איכותי וברזל שנספג בקלות.", vit: ["B12", "B6"], mineral: "ברזל" },
+            "הודו": { info: "עשיר מאוד בברזל, B12 ואבץ.", vit: ["B12"], mineral: "ברזל" },
+            "בקר": { info: "הספקת ברזל מקסימלית לגדילה.", vit: ["B12", "B3"], mineral: "ברזל, אבץ" },
+            "כבד עוף": { info: "ריכוז גבוה של ברזל וויטמין A.", vit: ["A", "B12"], mineral: "ברזל" },
+            "לברק": { info: "דג קל לעיכול עם אומגה 3.", vit: ["D", "B12"], mineral: "יוד, אומגה 3" },
+            "סלמון": { info: "חומצות שומן אומגה 3 להתפתחות המוח.", vit: ["D", "B12"], mineral: "אומגה 3" },
+            "דניס": { info: "דג עדין וטעים עשיר בחלבון.", vit: ["B12"], mineral: "סלניום" },
+            "בקלה": { info: "דג רזה וקל לעיכול.", vit: ["B12"], mineral: "יוד" },
+            "אמנון": { info: "מקור חלבון זמין ורך.", vit: ["B12"], mineral: "זרחן" },
+            "סרדינים": { info: "עשירים בסידן ואומגה 3 (ללא עצמות).", vit: ["D", "B12"], mineral: "סידן" },
+            "טונה": { info: "חלבון וברזל (להעדיף טונה בהירה).", vit: ["B12", "D"], mineral: "סלניום" },
+            "ביצה": { info: "חלבון מושלם וכולין למוח.", vit: ["A", "D", "B12"], mineral: "ברזל" },
+            "עדשים": { info: "מקור ברזל צמחי מעולה וחלבון.", vit: ["B9"], mineral: "חלבון, ברזל" },
+            "טחינה": { info: "עשירה בסידן, ברזל ושומן בריא.", vit: ["B1"], mineral: "סידן, ברזל" }
         };
 
-        const categories = {
+        const baseIdeas = [
+            { id: 1, title: "המרק הכתום הקלאסי", ingredients: ["בטטה", "גזר", "עדשים"], desc: "פצצת ויטמינים לחיזוק החיסון" },
+            { id: 2, title: "השילוב הירוק", ingredients: ["קישוא", "אפונה", "ברוקולי"], desc: "עשיר בסיבים וברזל קליל" },
+            { id: 3, title: "מנת הברזל הראשונה", ingredients: ["הודו", "גזר", "בטטה"], desc: "חשוב במיוחד מגיל 6 חודשים" },
+            { id: 4, title: "בולונז לתינוקות", ingredients: ["בשר טחון", "עגבניה", "בצל"], desc: "מנה עשירה בברזל וטעם" },
+            { id: 5, title: "סלט ראשון שלי", ingredients: ["מלפפון", "עגבניה", "טחינה"], desc: "שילוב רענן ומרקם מעניין" },
+            { id: 6, title: "ארוחת בוקר רכה", ingredients: ["אבוקדו", "בננה"], desc: "שומן בריא ואנרגיה זמינה" }
+        ];
+
+        // הגדרת קטגוריות
+        const ideaCategories = {
             "כתום": [
                 { title: "מרק כתום קלאסי", items: ["בטטה", "גזר", "דלעת"] },
                 { title: "כתום ועדשים", items: ["בטטה", "עדשים", "גזר"] }
@@ -253,8 +317,11 @@
 
         db.ref('rom_sync').on('value', (s) => {
             const d = s.val(); if (d) { 
-                tastings = d.tastings || []; medical = d.medical || []; babyDOB = d.babyDOB || ""; 
-                customIdeas = d.customIdeas || []; dailyUpdate = d.dailyUpdate || "6 טיפות ברזל";
+                tastings = d.tastings || []; 
+                medical = d.medical || []; 
+                babyDOB = d.babyDOB || ""; 
+                customIdeas = d.customIdeas || [];
+                dailyUpdate = d.dailyUpdate || "6 טיפות ברזל";
                 document.getElementById('update-text').innerText = dailyUpdate;
                 renderHome(); renderRepo(); renderMed(); updateIdeas(); 
             }
@@ -264,36 +331,58 @@
 
         function uploadData() { db.ref('rom_sync').set({ tastings, medical, babyDOB, customIdeas, dailyUpdate }); }
 
-        function markDayDone() {
-            if(!tastings[activeIdx]) return;
-            const current = tastings[activeIdx];
-            current.status = current.status === 'done' ? 'pending' : 'done';
-            
-            // המנגנון לקפיצה אוטומטית ליום הבא:
-            if(current.status === 'done') {
-                const weekDays = tastings.filter(t => t.week === activeWeek);
-                const currentInWeekIdx = weekDays.findIndex(t => t.id === current.id);
-                if(currentInWeekIdx < 6) {
-                    const nextItem = weekDays[currentInWeekIdx + 1];
-                    activeIdx = tastings.findIndex(t => t.id === nextItem.id);
-                }
+        function editUpdate() {
+            const newUpdate = prompt("מה תרצו לכתוב בחלון העדכונים?", dailyUpdate);
+            if (newUpdate !== null) {
+                dailyUpdate = newUpdate;
+                document.getElementById('update-text').innerText = dailyUpdate;
+                uploadData();
             }
-            uploadData();
         }
 
-        function openCategory(name, bg, color, icon) {
-            const content = document.getElementById('cat-modal-content');
-            document.getElementById('cat-modal-title').innerText = name;
-            document.getElementById('cat-modal-title').style.color = color;
+        // פונקציית פתיחת מודאל קטגוריה
+        function openCategoryModal(name, bg, color, icon) {
+            const content = document.getElementById('cat-detail-content');
+            document.getElementById('cat-detail-title').innerText = "רעיונות: " + name;
+            document.getElementById('cat-detail-title').style.color = color;
             let html = "";
-            categories[name].forEach(recipe => {
-                html += `<div class="p-4 rounded-3xl border border-gray-100 shadow-sm bg-white italic"><div class="font-bold border-b pb-2 mb-2">${recipe.title}</div><div class="space-y-2">${recipe.items.map(item => {
-                    const data = nutriDB[item] || { info: "רכיב תזונתי", vit: ["-"], mineral: "-" };
-                    return `<div class="text-[11px] bg-gray-50 p-2 rounded-xl"><b>${item}:</b> ${data.info} <br><span class="text-sky-400">ויטמינים: ${data.vit.join(', ')} | ${data.mineral}</span></div>`;
-                }).join('')}</div></div>`;
+            ideaCategories[name].forEach(recipe => {
+                html += `
+                <div class="p-4 rounded-3xl border border-gray-100 shadow-sm bg-white italic">
+                    <div class="font-bold border-b pb-2 mb-2 text-gray-800">${recipe.title}</div>
+                    <div class="space-y-2">
+                        ${recipe.items.map(item => {
+                            const data = nutriDB[item] || { info: "רכיב תזונתי עשיר", vit: ["-"], mineral: "-" };
+                            return `<div class="text-[11px] bg-gray-50 p-2 rounded-xl"><b>${item}:</b> ${data.info} <br><span class="text-sky-400 font-bold">ויטמינים: ${data.vit.join(', ')} | ${data.mineral}</span></div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
             });
             content.innerHTML = html;
-            toggleModal('category-modal', true);
+            toggleModal('category-detail-modal', true);
+        }
+
+        function showNutri(title, ingredients) {
+            document.getElementById('nutri-title').innerText = title;
+            let bodyHtml = "";
+            ingredients.forEach(ing => {
+                const data = nutriDB[ing];
+                if(data) {
+                    bodyHtml += `
+                    <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-sky-400">
+                        <div class="font-bold text-gray-800 text-lg mb-1">${ing}</div>
+                        <p class="text-xs text-gray-600 mb-2">${data.info}</p>
+                        <div class="flex flex-wrap gap-1">
+                            ${data.vit.map(v => `<span class="bg-amber-50 text-amber-600 text-[10px] px-2 py-0.5 rounded-full font-bold">ויטמין ${v}</span>`).join('')}
+                            <span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-full font-bold">${data.mineral}</span>
+                        </div>
+                    </div>`;
+                } else {
+                    bodyHtml += `<div class="p-4 bg-gray-50 rounded-2xl border-r-4 border-gray-200"><div class="font-bold">${ing}</div><div class="text-xs text-gray-400">ערכים תזונתיים חיוניים להתפתחות.</div></div>`;
+                }
+            });
+            document.getElementById('nutri-body').innerHTML = bodyHtml;
+            toggleModal('nutri-modal', true);
         }
 
         function calculateCustomNutrition() {
@@ -302,25 +391,18 @@
             if(!input) return;
             let found = Object.keys(nutriDB).filter(key => input.includes(key));
             if(found.length > 0) {
-                resDiv.innerHTML = `<b>רכיבים שזוהו:</b> ${found.join(', ')}<br><span class="underline">לחץ כאן לניתוח</span>`;
+                resDiv.innerHTML = `<b>רכיבים שזוהו:</b> ${found.join(', ')}<br><span class="underline">לחץ כאן לניתוח מעמיק</span>`;
                 resDiv.classList.remove('hidden');
                 resDiv.onclick = () => showNutri(input, found);
-            } else { resDiv.innerHTML = "לא זוהו רכיבים מוכרים."; resDiv.classList.remove('hidden'); }
-        }
-
-        function showNutri(title, ingredients) {
-            document.getElementById('nutri-title').innerText = title;
-            let bodyHtml = ingredients.map(ing => {
-                const data = nutriDB[ing] || { info: "רכיב תזונתי חשוב", vit: ["-"], mineral: "-" };
-                return `<div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-sky-400 font-bold italic"><div class="text-lg mb-1">${ing}</div><p class="text-xs text-gray-600 mb-2">${data.info}</p><div class="flex flex-wrap gap-1">${data.vit.map(v => `<span class="bg-amber-50 text-amber-600 text-[10px] px-2 py-0.5 rounded-full">ויטמין ${v}</span>`).join('')}<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-full">${data.mineral}</span></div></div>`;
-            }).join('');
-            document.getElementById('nutri-body').innerHTML = bodyHtml;
-            toggleModal('nutri-modal', true);
+            } else {
+                resDiv.innerHTML = "לא זוהו רכיבים מוכרים במחשבון.";
+                resDiv.classList.remove('hidden');
+            }
         }
 
         function openAddIdeaModal() {
             const input = document.getElementById('custom-mix-input').value;
-            if(!input) return;
+            if(!input) return alert("הזן קודם רכיבים במחשבון");
             document.getElementById('new-idea-items').innerText = `רכיבים: ${input}`;
             toggleModal('add-idea-modal', true);
         }
@@ -330,24 +412,44 @@
             const input = document.getElementById('custom-mix-input').value;
             if(!name) return;
             let found = Object.keys(nutriDB).filter(key => input.includes(key));
-            customIdeas.push({ id: Date.now(), title: name, ingredients: found.length > 0 ? found : [input], desc: "שילוב אישי" });
-            uploadData(); toggleModal('add-idea-modal', false);
+            customIdeas.push({ id: Date.now(), title: name, ingredients: found.length > 0 ? found : [input], desc: "שילוב בהתאמה אישית" });
+            uploadData();
+            toggleModal('add-idea-modal', false);
+            document.getElementById('new-idea-name').value = "";
+            document.getElementById('custom-mix-input').value = "";
+            document.getElementById('custom-result').classList.add('hidden');
+        }
+
+        function deleteIdea(id) {
+            customIdeas = customIdeas.filter(i => i.id !== id);
+            uploadData();
         }
 
         function updateIdeas() {
             const container = document.getElementById('ideas-content');
-            let html = customIdeas.map(idea => `
-                <div class="glass-card p-5 border border-white relative italic" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
-                    <button onclick="event.stopPropagation(); customIdeas = customIdeas.filter(i => i.id !== ${idea.id}); uploadData();" class="absolute top-4 left-4 text-gray-300"><i class="fas fa-trash-alt"></i></button>
-                    <h4 class="font-bold text-lg text-gray-800">${idea.title}</h4>
-                    <div class="flex flex-wrap gap-1 mt-2">${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-lg">#${ing}</span>`).join('')}</div>
-                </div>`).join('');
-            container.innerHTML = html;
-        }
+            let html = "";
+            
+            if(babyDOB) {
+                const dob = new Date(babyDOB); const now = new Date();
+                let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+                if (now.getDate() < dob.getDate()) months--;
+                html += `<div class="bg-sky-50 p-4 rounded-3xl text-center font-bold text-sky-600">רום בן ${months} חודשים ✨</div>`;
+            }
 
-        function editUpdate() {
-            const newUpdate = prompt("עדכון חדש:", dailyUpdate);
-            if (newUpdate !== null) { dailyUpdate = newUpdate; uploadData(); }
+            const allIdeas = [...baseIdeas, ...customIdeas];
+            allIdeas.forEach(idea => {
+                const isCustom = !baseIdeas.find(b => b.id === idea.id);
+                html += `
+                <div class="glass-card p-5 nutrition-card border border-white hover:border-sky-200 relative" onclick="showNutri('${idea.title}', ${JSON.stringify(idea.ingredients)})">
+                    ${isCustom ? `<button onclick="event.stopPropagation(); deleteIdea(${idea.id})" class="absolute top-4 left-4 text-gray-300 hover:text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    <h4 class="font-bold text-lg text-gray-800">${idea.title}</h4>
+                    <p class="text-[10px] text-gray-400 mb-2">${idea.desc}</p>
+                    <div class="flex flex-wrap gap-1">
+                        ${idea.ingredients.map(ing => `<span class="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-lg">#${ing}</span>`).join('')}
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
         function nav(s) {
@@ -355,9 +457,24 @@
             document.getElementById(`sec-${s}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(s !== 'home') document.getElementById(`nav-${s}`).classList.add('active');
+            if(s === 'ideas') updateIdeas();
         }
 
         function toggleModal(id, show) { document.getElementById(id).classList.toggle('active', show); }
+
+        function saveBabyInfo() { 
+            babyDOB = document.getElementById('baby-dob').value; 
+            uploadData(); toggleModal('baby-modal', false); 
+        }
+
+        function changeWeek(dir) {
+            const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
+            const currentPos = weeks.indexOf(activeWeek);
+            const nextPos = currentPos + dir;
+            if (nextPos >= 0 && nextPos < weeks.length) {
+                activeWeek = weeks[nextPos]; activeIdx = tastings.findIndex(t => t.week === activeWeek); renderHome();
+            }
+        }
 
         function renderHome() {
             const carousel = document.getElementById('week-carousel');
@@ -366,17 +483,29 @@
             const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
             document.getElementById('prev-week-btn').className = `fas fa-chevron-right nav-arrow text-sky-400 ${weeks.indexOf(activeWeek) === 0 ? 'disabled' : ''}`;
             document.getElementById('next-week-btn').className = `fas fa-chevron-left nav-arrow text-sky-400 ${weeks.indexOf(activeWeek) === weeks.length - 1 ? 'disabled' : ''}`;
-            
+            let allDone = weekDays.every(t => t.status === 'done');
             weekDays.forEach((item, index) => {
                 const isSelected = tastings[activeIdx] && tastings[activeIdx].id === item.id;
-                carousel.innerHTML += `<div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}"><span class="text-[10px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span><div class="text-4xl mb-2">${(index === 6) ? "🥗" : (item.emoji || "🥣")}</div><span class="text-xs font-bold text-gray-700">${item.food}</span>${item.status === 'done' ? '<div class="mt-2 text-sky-400"><i class="fas fa-check-circle text-sm"></i></div>' : ''}</div>`;
+                carousel.innerHTML += `<div onclick="activeIdx=${tastings.indexOf(item)}; renderHome();" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center transition-all ${isSelected ? 'border-sky-300 bg-sky-50 scale-105 shadow-md' : 'border-white'} ${item.status === 'done' ? 'opacity-50' : ''}"><span class="text-[10px] text-gray-400 font-bold mb-3 italic">יום ${index + 1}</span><div class="text-4xl mb-2">${(index === 6) ? "🥗" : (item.emoji || "🥣")}</div><span class="text-xs font-bold text-gray-700">${item.food}</span>${item.status === 'done' ? '<div class="mt-2 text-sky-400"><i class="fas fa-check-circle text-sm"></i></div>' : ''}</div>`;
             });
+            if (allDone) carousel.innerHTML += `<div onclick="openModalForNew()" class="flex-shrink-0 w-32 h-44 glass-card border-2 flex flex-col items-center justify-center btn-next-week cursor-pointer"><div class="text-3xl mb-2">✨</div><span class="text-xs font-bold text-amber-600 text-center px-2">שבוע הבא</span></div>`;
             const current = tastings[activeIdx];
             if (current) {
                 document.getElementById('today-food-text').innerText = current.food;
-                document.getElementById('today-day-text').innerText = `יום ${current.day}`;
+                document.getElementById('today-day-text').innerText = `יום ${current.day} (שבוע ${activeWeek})`;
                 document.getElementById('main-check-btn').style.backgroundColor = current.status === 'done' ? "#10b981" : "#38bdf8";
             }
+        }
+
+        function markDayDone() {
+            if(!tastings[activeIdx]) return;
+            tastings[activeIdx].status = tastings[activeIdx].status === 'done' ? 'pending' : 'done';
+            if (tastings[activeIdx].status === 'done') {
+                const weekItems = tastings.filter(t => t.week === activeWeek);
+                const currentIdxInWeek = weekItems.indexOf(tastings[activeIdx]);
+                if (currentIdxInWeek < weekItems.length - 1) activeIdx = tastings.indexOf(weekItems[currentIdxInWeek + 1]);
+            }
+            uploadData();
         }
 
         function renderRepo() {
@@ -384,12 +513,12 @@
             const weeks = [...new Set(tastings.map(t => t.week))];
             weeks.forEach(w => {
                 const items = tastings.filter(t => t.week === w), done = items.every(t => t.status === 'done');
-                container.innerHTML += `<div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm"><div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('repo-item-${w}').classList.toggle('open')"><div><div class="text-xl font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div><div class="text-xs text-gray-400">${items[0].date || ''}</div></div><i class="fas fa-chevron-down text-gray-300 chevron"></i></div><div class="repo-item-content"><button onclick="openModalForEdit(${w})" class="w-full mt-3 py-2 text-xs text-sky-400 border-t border-gray-50 font-bold italic">עריכה</button></div></div>`;
+                container.innerHTML += `<div id="repo-item-${w}" class="repo-item glass-card p-5 border-r-8 ${done ? 'border-green-400' : 'border-sky-100'} shadow-sm"><div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('repo-item-${w}').classList.toggle('open')"><div onclick="event.stopPropagation(); activeWeek=parseInt(${w}); activeIdx=tastings.findIndex(t=>t.week==${w}); nav('home');"><div class="text-xl font-bold italic">שבוע ${w} ${done ? '✅' : ''}</div><div class="text-xs text-gray-400 mt-1">${items[0].date || 'טרם נקבע'}</div></div><i class="fas fa-chevron-down text-gray-300 chevron"></i></div><div class="repo-item-content"><div class="flex space-x-3 space-x-reverse overflow-x-auto no-scrollbar py-2">${items.map((it, idx) => `<div class="flex-shrink-0 w-20 h-28 bg-white/50 rounded-2xl flex flex-col items-center justify-center border border-gray-50"><div class="text-xl">${idx === 6 ? "🥗" : (it.emoji || "🥣")}</div><span class="text-[9px] font-bold text-gray-600">${it.food}</span></div>`).join('')}</div><button onclick="openModalForEdit(${w})" class="w-full mt-3 py-2 text-xs text-sky-400 border-t border-gray-50 font-bold italic">עריכה</button></div></div>`;
             });
         }
 
         function renderMed() {
-            document.getElementById('med-list').innerHTML = medical.map((m, i) => `<div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center italic"><div><div class="font-bold text-gray-800">${m.name}</div><div class="text-xs text-gray-500">${m.date} | ${m.time}</div>${m.loc ? `<div class="text-[10px] text-sky-400 mt-1"><i class="fas fa-map-marker-alt"></i> ${m.loc}</div>` : ''}</div><div class="flex items-center gap-3">${m.loc ? `<a href="waze://?q=${encodeURIComponent(m.loc)}&navigate=yes" class="text-sky-400 p-2"><i class="fas fa-car text-xl"></i></a>` : ''}<button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200"><i class="fas fa-trash-alt text-lg"></i></button></div></div>`).join('');
+            document.getElementById('med-list').innerHTML = medical.map((m, i) => `<div class="glass-card p-5 border-r-8 border-sky-300 flex justify-between items-center shadow-sm italic text-base"><div><div class="font-bold text-gray-800">${m.name}</div><div class="text-xs text-gray-500">${m.date} | ${m.time}</div>${m.loc ? `<div class="text-[10px] text-sky-400 mt-1"><i class="fas fa-map-marker-alt"></i> ${m.loc}</div>` : ''}</div><div class="flex items-center gap-3">${m.loc ? `<a href="waze://?q=${encodeURIComponent(m.loc)}&navigate=yes" class="text-sky-400 p-2"><i class="fas fa-car text-xl"></i></a>` : ''}<button onclick="medical.splice(${i}, 1); uploadData();" class="text-gray-200 p-2"><i class="fas fa-trash-alt text-lg"></i></button></div></div>`).join('');
         }
 
         function addMed() {
@@ -399,10 +528,20 @@
         }
 
         function openModalForNew() { editingWeek = null; document.getElementById('modal-title').innerText = "שבוע חדש ✨"; document.getElementById('modal-foods').value = "בטטה, בטטה, בטטה, גזר, גזר, גזר, שילוב"; toggleModal('week-modal', true); }
-        function openModalForEdit(w) { editingWeek = w; const items = tastings.filter(t => t.week === w); if(items.length > 0) { document.getElementById('modal-dates').value = items[0].date || ''; document.getElementById('modal-foods').value = items.map(i => i.food).join(', '); toggleModal('week-modal', true); } }
+        function openModalForEdit(w) { 
+            editingWeek = w; const items = tastings.filter(t => t.week === w);
+            if(items.length > 0) {
+                document.getElementById('modal-title').innerText = `עריכת שבוע ${w}`;
+                document.getElementById('modal-dates').value = items[0].date || '';
+                document.getElementById('modal-emoji').value = items[0].emoji || '';
+                document.getElementById('modal-foods').value = items.map(i => i.food).join(', ');
+                toggleModal('week-modal', true); 
+            }
+        }
         function saveWeek() {
             const dates = document.getElementById('modal-dates').value, emoji = document.getElementById('modal-emoji').value, foods = document.getElementById('modal-foods').value, foodArr = foods.split(',').map(s => s.trim());
-            if (editingWeek) { let dayC = 0; tastings.forEach(t => { if(t.week === editingWeek) { t.date = dates; t.food = foodArr[dayC++] || foodArr[0]; } });
+            if (editingWeek) {
+                let dayC = 0; tastings.forEach(t => { if(t.week === editingWeek) { t.date = dates; t.emoji = emoji; t.food = foodArr[dayC++] || foodArr[0]; } });
             } else {
                 const nextW = tastings.length > 0 ? Math.max(...tastings.map(t => t.week)) + 1 : 1, lastD = tastings.length > 0 ? Math.max(...tastings.map(t => t.day)) : 0;
                 for(let i=0; i<7; i++) { tastings.push({ id: Date.now() + i, week: nextW, day: lastD + 1 + i, food: foodArr[i] || foodArr[0], emoji: i === 6 ? "🥗" : emoji, status: 'pending', date: dates }); }
@@ -410,12 +549,6 @@
             }
             uploadData(); toggleModal('week-modal', false);
         }
-        function changeWeek(dir) {
-            const weeks = [...new Set(tastings.map(t => t.week))].sort((a,b) => a-b);
-            const nextPos = weeks.indexOf(activeWeek) + dir;
-            if (nextPos >= 0 && nextPos < weeks.length) { activeWeek = weeks[nextPos]; activeIdx = tastings.findIndex(t => t.week === activeWeek); renderHome(); }
-        }
-        function saveBabyInfo() { babyDOB = document.getElementById('baby-dob').value; uploadData(); toggleModal('baby-modal', false); }
     </script>
 </body>
 </html>
